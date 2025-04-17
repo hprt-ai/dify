@@ -397,11 +397,12 @@ class DocumentIndexingEstimateApi(DocumentResource):
     def get(self, dataset_id, document_id):
         dataset_id = str(dataset_id)
         document_id = str(document_id)
+        # 获取文档
         document = self.get_document(dataset_id, document_id)
 
         if document.indexing_status in {"completed", "error"}:
             raise DocumentAlreadyFinishedError()
-
+        # 获取处理规则
         data_process_rule = document.dataset_process_rule
         data_process_rule_dict = data_process_rule.to_dict()
 

@@ -857,12 +857,13 @@ class DocumentService:
     @staticmethod
     def save_document_with_dataset_id(
         dataset: Dataset,
+        #  配置信息，包含了文档、数据源、索引等相关配置信息
         knowledge_config: KnowledgeConfig,
         account: Account | Any,
         dataset_process_rule: Optional[DatasetProcessRule] = None,
         created_from: str = "web",
     ):
-        # check document limit
+        # 检查文件上传限制
         features = FeatureService.get_features(current_user.current_tenant_id)
 
         if features.billing.enabled:
@@ -894,6 +895,7 @@ class DocumentService:
                 raise ValueError("Indexing technique is invalid")
 
             dataset.indexing_technique = knowledge_config.indexing_technique
+            # 如果选择了高质量索引技术，则获取或使用默认的文本嵌入模型
             if knowledge_config.indexing_technique == "high_quality":
                 model_manager = ModelManager()
                 if knowledge_config.embedding_model and knowledge_config.embedding_model_provider:
@@ -905,12 +907,15 @@ class DocumentService:
                     )
                     dataset_embedding_model = embedding_model.model
                     dataset_embedding_model_provider = embedding_model.provider
+                # 更新数据集的嵌入模型和提供者
                 dataset.embedding_model = dataset_embedding_model
                 dataset.embedding_model_provider = dataset_embedding_model_provider
                 dataset_collection_binding = DatasetCollectionBindingService.get_dataset_collection_binding(
                     dataset_embedding_model_provider, dataset_embedding_model
                 )
+                # 绑定数据集的集合 ID
                 dataset.collection_binding_id = dataset_collection_binding.id
+                # 如果数据集没有检索模型，则使用默认的检索模型
                 if not dataset.retrieval_model:
                     default_retrieval_model = {
                         "search_method": RetrievalMethod.SEMANTIC_SEARCH.value,
@@ -933,7 +938,7 @@ class DocumentService:
             batch = document.batch
         else:
             batch = time.strftime("%Y%m%d%H%M%S") + str(random.randint(100000, 999999))
-            # save process rule
+            # 保存处理规则
             if not dataset_process_rule:
                 process_rule = knowledge_config.process_rule
                 if process_rule:
@@ -958,6 +963,7 @@ class DocumentService:
                         return
                     db.session.add(dataset_process_rule)
                     db.session.commit()
+            # 锁定资源并保存文档
             lock_name = "add_document_lock_dataset_id_{}".format(dataset.id)
             with redis_client.lock(lock_name, timeout=600):
                 position = DocumentService.get_documents_position(dataset.id)
@@ -1119,7 +1125,7 @@ class DocumentService:
                         position += 1
                 db.session.commit()
 
-                # trigger async task
+                # 触发异步任务
                 if document_ids:
                     document_indexing_task.delay(dataset.id, document_ids)
                 if duplicate_document_ids:
@@ -1331,7 +1337,7 @@ class DocumentService:
             batch_upload_limit = int(dify_config.BATCH_UPLOAD_LIMIT)
             if count > batch_upload_limit:
                 raise ValueError(f"You have reached the batch upload limit of {batch_upload_limit}.")
-
+            # 1. 检查文档配额
             DocumentService.check_documents_upload_quota(count, features)
 
         dataset_collection_binding_id = None

@@ -178,7 +178,7 @@ class DocumentAddByFileApi(DatasetApiResource):
 
         # save file info
         file = request.files["file"]
-        # check file
+        # 1. 获取上传的文件
         if "file" not in request.files:
             raise NoFileUploadedError()
 
@@ -187,7 +187,7 @@ class DocumentAddByFileApi(DatasetApiResource):
 
         if not file.filename:
             raise FilenameNotExistsError
-
+        # 2. 保存文件
         upload_file = FileService.upload_file(
             filename=file.filename,
             content=file.read(),
@@ -195,6 +195,7 @@ class DocumentAddByFileApi(DatasetApiResource):
             user=current_user,
             source="datasets",
         )
+        # 3. 创建数据源信息
         data_source = {
             "type": "upload_file",
             "info_list": {"data_source_type": "upload_file", "file_info_list": {"file_ids": [upload_file.id]}},
@@ -205,6 +206,7 @@ class DocumentAddByFileApi(DatasetApiResource):
         DocumentService.document_create_args_validate(knowledge_config)
 
         try:
+            # 4. 调用 DocumentService 保存文档
             documents, batch = DocumentService.save_document_with_dataset_id(
                 dataset=dataset,
                 knowledge_config=knowledge_config,

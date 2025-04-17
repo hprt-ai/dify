@@ -223,6 +223,7 @@ class CharacterTextSplitter(TextSplitter):
     def split_text(self, text: str) -> list[str]:
         """Split incoming text and return chunks."""
         # First we naively split the large input into a bunch of smaller ones.
+        # 使用正则表达式分割文本
         splits = _split_text_with_regex(text, self._separator, self._keep_separator)
         _separator = "" if self._keep_separator else self._separator
         _good_splits_lengths = []  # cache the lengths of the splits

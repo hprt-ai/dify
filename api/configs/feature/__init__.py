@@ -63,7 +63,7 @@ class AppExecutionConfig(BaseSettings):
     )
     APP_DAILY_RATE_LIMIT: NonNegativeInt = Field(
         description="Maximum number of requests per app per day",
-        default=5000,
+        default=5001
     )
 
 

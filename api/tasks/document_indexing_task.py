@@ -21,6 +21,7 @@ def document_indexing_task(dataset_id: str, document_ids: list):
 
     Usage: document_indexing_task.delay(dataset_id, document_ids)
     """
+    # 获取数据集
     documents = []
     start_at = time.perf_counter()
 
@@ -28,7 +29,7 @@ def document_indexing_task(dataset_id: str, document_ids: list):
     if not dataset:
         logging.info(click.style("Dataset is not found: {}".format(dataset_id), fg="yellow"))
         return
-    # check document limit
+    #  检查文档上传限制
     features = FeatureService.get_features(dataset.tenant_id)
     try:
         if features.billing.enabled:
@@ -63,6 +64,7 @@ def document_indexing_task(dataset_id: str, document_ids: list):
         )
 
         if document:
+            # 更新文档状态
             document.indexing_status = "parsing"
             document.processing_started_at = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
             documents.append(document)
@@ -71,6 +73,7 @@ def document_indexing_task(dataset_id: str, document_ids: list):
 
     try:
         indexing_runner = IndexingRunner()
+        # 执行处理流程
         indexing_runner.run(documents)
         end_at = time.perf_counter()
         logging.info(click.style("Processed dataset: {} latency: {}".format(dataset_id, end_at - start_at), fg="green"))
