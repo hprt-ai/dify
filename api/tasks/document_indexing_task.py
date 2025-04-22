@@ -28,6 +28,7 @@ def document_indexing_task(dataset_id: str, document_ids: list):
     dataset = db.session.query(Dataset).filter(Dataset.id == dataset_id).first()
     if not dataset:
         logging.info(click.style("Dataset is not found: {}".format(dataset_id), fg="yellow"))
+        db.session.close()
         return
     #  检查文档上传限制
     features = FeatureService.get_features(dataset.tenant_id)
@@ -36,6 +37,8 @@ def document_indexing_task(dataset_id: str, document_ids: list):
             vector_space = features.vector_space
             count = len(document_ids)
             batch_upload_limit = int(dify_config.BATCH_UPLOAD_LIMIT)
+            if features.billing.subscription.plan == "sandbox" and count > 1:
+                raise ValueError("Your current plan does not support batch upload, please upgrade your plan.")
             if count > batch_upload_limit:
                 raise ValueError(f"You have reached the batch upload limit of {batch_upload_limit}.")
             if 0 < vector_space.limit <= vector_space.size:
@@ -54,6 +57,7 @@ def document_indexing_task(dataset_id: str, document_ids: list):
                 document.stopped_at = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
                 db.session.add(document)
         db.session.commit()
+        db.session.close()
         return
 
     for document_id in document_ids:
@@ -81,3 +85,5 @@ def document_indexing_task(dataset_id: str, document_ids: list):
         logging.info(click.style(str(ex), fg="yellow"))
     except Exception:
         pass
+    finally:
+        db.session.close()

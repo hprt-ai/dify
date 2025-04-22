@@ -23,7 +23,6 @@ export default combine(
       'curly': ['error', 'multi-or-nest', 'consistent'],
       'style/comma-spacing': ['error', { before: false, after: true }],
       'style/quote-props': ['warn', 'consistent-as-needed'],
-
       // these options does not exist in old version
       // maybe useless
       'style/indent-binary-ops': 'off',
@@ -65,8 +64,6 @@ export default combine(
   // use `ESLINT_CONFIG_INSPECTOR=true pnpx @eslint/config-inspector` to check the config
   // ...process.env.ESLINT_CONFIG_INSPECTOR
   //   ? []
-  // TODO: remove this when upgrade to nextjs 15
-  // : fixupConfigRules(compat.extends('next')),
   {
     rules: {
       // performance issue, and not used.
@@ -87,6 +84,7 @@ export default combine(
   {
     // orignal config
     rules: {
+      'complexity': ['warn', { max: 10 }],
       // orignal ts/no-var-requires
       'ts/no-require-imports': 'off',
       'no-console': 'off',
@@ -117,6 +115,9 @@ export default combine(
       // antfu migrate to eslint-plugin-unused-imports
       'unused-imports/no-unused-vars': 'warn',
       'unused-imports/no-unused-imports': 'warn',
+
+      // We use `import { noop } from 'lodash-es'` across `web` project
+      'no-empty-function': 'error',
     },
 
     languageOptions: {
@@ -127,6 +128,13 @@ export default combine(
         React: 'readable',
         JSX: 'readable',
       },
+      parserOptions: {
+        ecmaVersion: 2020,
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true
+        }
+      }
     },
   },
   storybook.configs['flat/recommended'],

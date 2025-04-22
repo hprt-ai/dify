@@ -83,7 +83,7 @@ export default function AppSelector() {
                 <MenuItems
                   className="
                     absolute right-0 mt-1.5 w-60 max-w-80
-                    origin-top-right divide-y divide-divider-subtle rounded-lg bg-components-panel-bg-blur
+                    origin-top-right divide-y divide-divider-subtle rounded-xl bg-components-panel-bg-blur
                     shadow-lg focus:outline-none
                   "
                 >
@@ -94,7 +94,7 @@ export default function AppSelector() {
                           {userProfile.name}
                           {isEducationAccount && (
                             <PremiumBadge size='s' color='blue' className='ml-1 !px-2'>
-                              <RiGraduationCapFill className='w-3 h-3 mr-1' />
+                              <RiGraduationCapFill className='mr-1 h-3 w-3' />
                               <span className='system-2xs-medium'>EDU</span>
                             </PremiumBadge>
                           )}
