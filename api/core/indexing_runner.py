@@ -354,7 +354,7 @@ class IndexingRunner:
                 )
                 # 提取文本
                 text_docs = index_processor.extract(
-                    extract_setting, dataset_document.name, process_rule_mode=process_rule["mode"]
+                    extract_setting, process_rule_mode=process_rule["mode"]
                 )
         elif dataset_document.data_source_type == "notion_import":
             if (
