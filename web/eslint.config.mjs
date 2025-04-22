@@ -128,13 +128,6 @@ export default combine(
         React: 'readable',
         JSX: 'readable',
       },
-      parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: 'module',
-        ecmaFeatures: {
-          jsx: true
-        }
-      }
     },
   },
   storybook.configs['flat/recommended'],
