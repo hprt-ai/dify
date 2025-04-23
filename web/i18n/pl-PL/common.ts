@@ -51,6 +51,9 @@ const translation = {
     skip: 'Statek',
     imageCopied: 'Skopiowany obraz',
     deleteApp: 'Usuń aplikację',
+    copied: 'Kopiowane',
+    in: 'w',
+    viewDetails: 'Wyświetl szczegóły',
   },
   placeholder: {
     input: 'Proszę wprowadzić',
@@ -126,6 +129,8 @@ const translation = {
       Custom: 'Niestandardowy',
     },
     addMoreModel: 'Przejdź do ustawień, aby dodać więcej modeli',
+    settingsLink: 'Ustawienia dostawcy modelu',
+    capabilities: 'Możliwości multimodalne',
   },
   menus: {
     status: 'beta',
@@ -140,6 +145,7 @@ const translation = {
     newApp: 'Nowa aplikacja',
     newDataset: 'Utwórz Wiedzę',
     tools: 'Narzędzia',
+    exploreMarketplace: 'Zapoznaj się z Marketplace',
   },
   userProfile: {
     settings: 'Ustawienia',
@@ -165,6 +171,7 @@ const translation = {
     dataSource: 'Źródło danych',
     plugin: 'Pluginy',
     apiBasedExtension: 'Rozszerzenie API',
+    generalGroup: 'OGÓLNE',
   },
   account: {
     avatar: 'Awatar',
@@ -296,6 +303,7 @@ const translation = {
       usedUp: 'Limit próbny został wyczerpany. Dodaj własnego dostawcę modeli.',
       useYourModel: 'Aktualnie używany jest własny dostawca modeli.',
       close: 'Zamknij',
+      trialQuotaTip: 'Twój limit próbny Anthropic wygaśnie w dniu 11.03.2025 i nie będzie już dostępny po tym czasie. Prosimy o skorzystanie z niego w odpowiednim czasie.',
     },
     anthropic: {
       using: 'Zdolność do osadzania jest używana',
@@ -411,6 +419,12 @@ const translation = {
     editConfig: 'Edytuj konfigurację',
     addConfig: 'Dodaj konfigurację',
     apiKeyRateLimit: 'Osiągnięto limit szybkości, dostępny po {{sekund}}s',
+    installProvider: 'Instalowanie dostawców modeli',
+    emptyProviderTip: 'Najpierw zainstaluj dostawcę modeli.',
+    discoverMore: 'Dowiedz się więcej w',
+    toBeConfigured: 'Do skonfigurowania',
+    configureTip: 'Konfigurowanie klucza interfejsu API lub dodawanie modelu do użycia',
+    emptyProviderTitle: 'Dostawca modelu nie jest skonfigurowany',
   },
   dataSource: {
     add: 'Dodaj źródło danych',
@@ -542,6 +556,8 @@ const translation = {
       hitScore: 'Wynik trafień:',
     },
     inputPlaceholder: 'Porozmawiaj z botem',
+    thought: 'Myśl',
+    thinking: 'Myślenie...',
   },
   promptEditor: {
     placeholder:

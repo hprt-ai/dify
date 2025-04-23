@@ -36,6 +36,7 @@ class ParagraphIndexProcessor(BaseIndexProcessor):
             automatic_rule = DatasetProcessRule.AUTOMATIC_RULES
             rules = Rule(**automatic_rule)
         else:
+            # 使用自定义分段规则
             if not process_rule.get("rules"):
                 raise ValueError("No rules found in process rule.")
             rules = Rule(**process_rule.get("rules"))
@@ -45,26 +46,31 @@ class ParagraphIndexProcessor(BaseIndexProcessor):
         splitter = self._get_splitter(
             processing_rule_mode=process_rule.get("mode"),
             max_tokens=rules.segmentation.max_tokens,
+            # 重叠大小
             chunk_overlap=rules.segmentation.chunk_overlap,
+            # 分隔符
             separator=rules.segmentation.separator,
             embedding_model_instance=kwargs.get("embedding_model_instance"),
         )
         all_documents = []
         for document in documents:
-            # document clean
+            # 清理文档内容
             document_text = CleanProcessor.clean(document.page_content, kwargs.get("process_rule", {}))
             document.page_content = document_text
-            # parse document to nodes
+            # 切割文档
             document_nodes = splitter.split_documents([document])
             split_documents = []
             for document_node in document_nodes:
                 if document_node.page_content.strip():
+                    # 生成文档ID
                     doc_id = str(uuid.uuid4())
+                    # 生成文档哈希值
                     hash = helper.generate_text_hash(document_node.page_content)
+                    # 添加文档ID和哈希值到元数据
                     if document_node.metadata is not None:
                         document_node.metadata["doc_id"] = doc_id
                         document_node.metadata["doc_hash"] = hash
-                    # delete Splitter character
+                    # 删除分隔符
                     page_content = remove_leading_symbols(document_node.page_content).strip()
                     if len(page_content) > 0:
                         document_node.page_content = page_content

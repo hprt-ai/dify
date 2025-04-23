@@ -30,7 +30,7 @@ from core.rag.splitter.fixed_text_splitter import (
     FixedRecursiveCharacterTextSplitter,
 )
 from core.rag.splitter.text_splitter import TextSplitter
-from core.tools.utils.web_reader_tool import get_image_upload_file_ids
+from core.tools.utils.rag_web_reader import get_image_upload_file_ids
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client
 from extensions.ext_storage import storage
@@ -56,7 +56,7 @@ class IndexingRunner:
                 if not dataset:
                     raise ValueError("no dataset found")
 
-                # get the process rule
+                # 获取数据集和处理规则
                 processing_rule = (
                     db.session.query(DatasetProcessRule)
                     .filter(DatasetProcessRule.id == dataset_document.dataset_process_rule_id)
@@ -65,15 +65,16 @@ class IndexingRunner:
                 if not processing_rule:
                     raise ValueError("no process rule found")
                 index_type = dataset_document.doc_form
+                # 初始化索引处理器
                 index_processor = IndexProcessorFactory(index_type).init_index_processor()
-                # extract
+                # 提取文本
                 text_docs = self._extract(index_processor, dataset_document, processing_rule.to_dict())
 
-                # transform
+                # 转换文本
                 documents = self._transform(
                     index_processor, dataset, text_docs, dataset_document.doc_language, processing_rule.to_dict()
                 )
-                # save segment
+                # 保存分段
                 self._load_segments(dataset, dataset_document, documents)
 
                 # load
@@ -187,7 +188,7 @@ class IndexingRunner:
                             },
                         )
                         if dataset_document.doc_form == IndexType.PARENT_CHILD_INDEX:
-                            child_chunks = document_segment.child_chunks
+                            child_chunks = document_segment.get_child_chunks()
                             if child_chunks:
                                 child_documents = []
                                 for child_chunk in child_chunks:
@@ -232,6 +233,7 @@ class IndexingRunner:
             db.session.commit()
 
     def indexing_estimate(
+        # 预览处理
         self,
         tenant_id: str,
         extract_settings: list[ExtractSetting],
@@ -286,7 +288,9 @@ class IndexingRunner:
             processing_rule = DatasetProcessRule(
                 mode=tmp_processing_rule["mode"], rules=json.dumps(tmp_processing_rule["rules"])
             )
+            # 提取文本
             text_docs = index_processor.extract(extract_setting, process_rule_mode=tmp_processing_rule["mode"])
+            # 转换文本
             documents = index_processor.transform(
                 text_docs,
                 embedding_model_instance=embedding_model_instance,
@@ -348,7 +352,10 @@ class IndexingRunner:
                 extract_setting = ExtractSetting(
                     datasource_type="upload_file", upload_file=file_detail, document_model=dataset_document.doc_form
                 )
-                text_docs = index_processor.extract(extract_setting, process_rule_mode=process_rule["mode"])
+                # 提取文本
+                text_docs = index_processor.extract(
+                    extract_setting, process_rule_mode=process_rule["mode"]
+                )
         elif dataset_document.data_source_type == "notion_import":
             if (
                 not data_source_info
@@ -618,10 +625,8 @@ class IndexingRunner:
 
             tokens = 0
             if embedding_model_instance:
-                tokens += sum(
-                    embedding_model_instance.get_text_embedding_num_tokens([document.page_content])
-                    for document in chunk_documents
-                )
+                page_content_list = [document.page_content for document in chunk_documents]
+                tokens += sum(embedding_model_instance.get_text_embedding_num_tokens(page_content_list))
 
             # load index
             index_processor.load(dataset, chunk_documents, with_keywords=False)
@@ -681,6 +686,7 @@ class IndexingRunner:
         DocumentSegment.query.filter_by(document_id=dataset_document_id).update(update_params)
         db.session.commit()
 
+    # 文本转换和分段处理
     def _transform(
         self,
         index_processor: BaseIndexProcessor,
@@ -715,6 +721,7 @@ class IndexingRunner:
 
         return documents
 
+    # 保存分段
     def _load_segments(self, dataset, dataset_document, documents):
         # save node to document segment
         doc_store = DatasetDocumentStore(

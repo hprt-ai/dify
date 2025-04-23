@@ -50,6 +50,7 @@ class BaseIndexProcessor(ABC):
         processing_rule_mode: str,
         max_tokens: int,
         chunk_overlap: int,
+        # 分隔符
         separator: str,
         embedding_model_instance: Optional[ModelInstance],
     ) -> TextSplitter:
@@ -57,7 +58,7 @@ class BaseIndexProcessor(ABC):
         Get the NodeParser object according to the processing rule.
         """
         if processing_rule_mode in ["custom", "hierarchical"]:
-            # The user-defined segmentation rule
+            # 获取配置中的最大分段长度限制
             max_segmentation_tokens_length = dify_config.INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH
             if max_tokens < 50 or max_tokens > max_segmentation_tokens_length:
                 raise ValueError(f"Custom segment length should be between 50 and {max_segmentation_tokens_length}.")
@@ -66,10 +67,15 @@ class BaseIndexProcessor(ABC):
                 separator = separator.replace("\\n", "\n")
 
             character_splitter = FixedRecursiveCharacterTextSplitter.from_encoder(
+                # 分段大小
                 chunk_size=max_tokens,
+                # 重叠大小
                 chunk_overlap=chunk_overlap,
+                # 分隔符
                 fixed_separator=separator,
+                # 分隔符列表
                 separators=["\n\n", "。", ". ", " ", ""],
+                # 嵌入模型实例
                 embedding_model_instance=embedding_model_instance,
             )
         else:

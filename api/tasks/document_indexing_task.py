@@ -19,22 +19,26 @@ def document_indexing_task(dataset_id: str, document_ids: list):
     :param dataset_id:
     :param document_ids:
 
-    Usage: document_indexing_task.delay(dataset_id, document_id)
+    Usage: document_indexing_task.delay(dataset_id, document_ids)
     """
+    # 获取数据集
     documents = []
     start_at = time.perf_counter()
 
     dataset = db.session.query(Dataset).filter(Dataset.id == dataset_id).first()
     if not dataset:
         logging.info(click.style("Dataset is not found: {}".format(dataset_id), fg="yellow"))
+        db.session.close()
         return
-    # check document limit
+    #  检查文档上传限制
     features = FeatureService.get_features(dataset.tenant_id)
     try:
         if features.billing.enabled:
             vector_space = features.vector_space
             count = len(document_ids)
             batch_upload_limit = int(dify_config.BATCH_UPLOAD_LIMIT)
+            if features.billing.subscription.plan == "sandbox" and count > 1:
+                raise ValueError("Your current plan does not support batch upload, please upgrade your plan.")
             if count > batch_upload_limit:
                 raise ValueError(f"You have reached the batch upload limit of {batch_upload_limit}.")
             if 0 < vector_space.limit <= vector_space.size:
@@ -53,6 +57,7 @@ def document_indexing_task(dataset_id: str, document_ids: list):
                 document.stopped_at = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
                 db.session.add(document)
         db.session.commit()
+        db.session.close()
         return
 
     for document_id in document_ids:
@@ -63,6 +68,7 @@ def document_indexing_task(dataset_id: str, document_ids: list):
         )
 
         if document:
+            # 更新文档状态
             document.indexing_status = "parsing"
             document.processing_started_at = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
             documents.append(document)
@@ -71,6 +77,7 @@ def document_indexing_task(dataset_id: str, document_ids: list):
 
     try:
         indexing_runner = IndexingRunner()
+        # 执行处理流程
         indexing_runner.run(documents)
         end_at = time.perf_counter()
         logging.info(click.style("Processed dataset: {} latency: {}".format(dataset_id, end_at - start_at), fg="green"))
@@ -78,3 +85,5 @@ def document_indexing_task(dataset_id: str, document_ids: list):
         logging.info(click.style(str(ex), fg="yellow"))
     except Exception:
         pass
+    finally:
+        db.session.close()
