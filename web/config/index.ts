@@ -7,25 +7,35 @@ export let publicApiPrefix = ''
 export let marketplaceApiPrefix = ''
 export let marketplaceUrlPrefix = ''
 
-// NEXT_PUBLIC_API_PREFIX=/console/api NEXT_PUBLIC_PUBLIC_API_PREFIX=/api npm run start
+const getApiHost = () => {
+  // 如果是服务端渲染，使用本地地址
+  if (typeof window === 'undefined')
+    return 'http://localhost:5001'
+
+  // 如果是本地访问
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    return 'http://localhost:5001'
+
+  // 如果是远程访问
+  return `http://${window.location.hostname}:5001`
+}
+
 if (process.env.NEXT_PUBLIC_API_PREFIX && process.env.NEXT_PUBLIC_PUBLIC_API_PREFIX) {
-  apiPrefix = process.env.NEXT_PUBLIC_API_PREFIX
-  publicApiPrefix = process.env.NEXT_PUBLIC_PUBLIC_API_PREFIX
+  const apiHost = getApiHost()
+  apiPrefix = `${apiHost}/console/api`
+  publicApiPrefix = `${apiHost}/api`
 }
 else if (
   globalThis.document?.body?.getAttribute('data-api-prefix')
   && globalThis.document?.body?.getAttribute('data-pubic-api-prefix')
 ) {
-  // Not build can not get env from process.env.NEXT_PUBLIC_ in browser https://nextjs.org/docs/basic-features/environment-variables#exposing-environment-variables-to-the-browser
   apiPrefix = globalThis.document.body.getAttribute('data-api-prefix') as string
   publicApiPrefix = globalThis.document.body.getAttribute('data-pubic-api-prefix') as string
 }
 else {
-  // const domainParts = globalThis.location?.host?.split('.');
-  // in production env, the host is dify.app . In other env, the host is [dev].dify.app
-  // const env = domainParts.length === 2 ? 'ai' : domainParts?.[0];
-  apiPrefix = 'http://localhost:5001/console/api'
-  publicApiPrefix = 'http://localhost:5001/api' // avoid browser private mode api cross origin
+  const apiHost = getApiHost()
+  apiPrefix = `${apiHost}/console/api`
+  publicApiPrefix = `${apiHost}/api`
   marketplaceApiPrefix = 'http://localhost:5002/api'
 }
 
