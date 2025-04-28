@@ -73,7 +73,7 @@ docs/_build/
 
 # PyBuilder
 target/
-
+docker/volumes
 # Jupyter Notebook
 .ipynb_checkpoints
 
