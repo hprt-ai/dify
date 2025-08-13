@@ -2,8 +2,8 @@ import datetime
 
 import pytz
 from flask import request
-from flask_login import current_user  # type: ignore
-from flask_restful import Resource, fields, marshal_with, reqparse  # type: ignore
+from flask_login import current_user
+from flask_restful import Resource, fields, marshal_with, reqparse
 
 from configs import dify_config
 from constants.languages import supported_language
@@ -286,8 +286,6 @@ class AccountDeleteApi(Resource):
 class AccountDeleteUpdateFeedbackApi(Resource):
     @setup_required
     def post(self):
-        account = current_user
-
         parser = reqparse.RequestParser()
         parser.add_argument("email", type=str, required=True, location="json")
         parser.add_argument("feedback", type=str, required=True, location="json")

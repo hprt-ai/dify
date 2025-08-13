@@ -97,7 +97,7 @@ export enum IndexingType {
 }
 
 const DEFAULT_SEGMENT_IDENTIFIER = '\\n\\n'
-const DEFAULT_MAXIMUM_CHUNK_LENGTH = 500
+const DEFAULT_MAXIMUM_CHUNK_LENGTH = 1024
 const DEFAULT_OVERLAP = 50
 const MAXIMUM_CHUNK_TOKEN_LENGTH = Number.parseInt(globalThis.document?.body?.getAttribute('data-public-indexing-max-segmentation-tokens-length') || '4000', 10)
 
@@ -117,11 +117,11 @@ const defaultParentChildConfig: ParentChildConfig = {
   chunkForContext: 'paragraph',
   parent: {
     delimiter: '\\n\\n',
-    maxLength: 500,
+    maxLength: 1024,
   },
   child: {
     delimiter: '\\n',
-    maxLength: 200,
+    maxLength: 512,
   },
 }
 
@@ -623,12 +623,12 @@ const StepTwo = ({
                   onChange={e => setSegmentIdentifier(e.target.value, true)}
                 />
                 <MaxLengthInput
-                  unit='tokens'
+                  unit='characters'
                   value={maxChunkLength}
                   onChange={setMaxChunkLength}
                 />
                 <OverlapInput
-                  unit='tokens'
+                  unit='characters'
                   value={overlap}
                   min={1}
                   onChange={setOverlap}
@@ -756,7 +756,7 @@ const StepTwo = ({
                         })}
                       />
                       <MaxLengthInput
-                        unit='tokens'
+                        unit='characters'
                         value={parentChildConfig.parent.maxLength}
                         onChange={value => setParentChildConfig({
                           ...parentChildConfig,
@@ -803,7 +803,7 @@ const StepTwo = ({
                     })}
                   />
                   <MaxLengthInput
-                    unit='tokens'
+                    unit='characters'
                     value={parentChildConfig.child.maxLength}
                     onChange={value => setParentChildConfig({
                       ...parentChildConfig,
@@ -865,10 +865,10 @@ const StepTwo = ({
             <>
               <CustomDialog show={isQAConfirmDialogOpen} onClose={() => setIsQAConfirmDialogOpen(false)} className='w-[432px]'>
                 <header className='mb-4 pt-6'>
-                  <h2 className='text-lg font-semibold'>
+                  <h2 className='text-lg font-semibold text-text-primary'>
                     {t('datasetCreation.stepTwo.qaSwitchHighQualityTipTitle')}
                   </h2>
-                  <p className='mt-2 text-sm font-normal'>
+                  <p className='mt-2 text-sm font-normal text-text-secondary'>
                     {t('datasetCreation.stepTwo.qaSwitchHighQualityTipContent')}
                   </p>
                 </header>
@@ -928,7 +928,7 @@ const StepTwo = ({
           </div>
         )}
         {hasSetIndexType && indexType === IndexingType.ECONOMICAL && (
-          <div className='system-xs-medium mt-2'>
+          <div className='system-xs-medium mt-2 text-text-tertiary'>
             {t('datasetCreation.stepTwo.indexSettingTip')}
             <Link className='text-text-accent' href={`/datasets/${datasetId}/settings`}>{t('datasetCreation.stepTwo.datasetSettingLink')}</Link>
           </div>

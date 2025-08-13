@@ -36,6 +36,7 @@ export type PluginEndpointDeclaration = {
 export type EndpointItem = {
   path: string
   method: string
+  hidden?: boolean
 }
 
 export type EndpointListItem = {
@@ -51,6 +52,11 @@ export type EndpointListItem = {
   enabled: boolean
   url: string
   hook_id: string
+}
+
+export type PluginDeclarationMeta = {
+  version: string
+  minimum_dify_version?: string
 }
 
 // Plugin manifest
@@ -72,6 +78,7 @@ export type PluginDeclaration = {
   model: any
   tags: string[]
   agent_strategy: any
+  meta: PluginDeclarationMeta
 }
 
 export type PluginManifestInMarket = {
@@ -318,6 +325,20 @@ export type InstalledPluginListResponse = {
   plugins: PluginDetail[]
 }
 
+export type InstalledPluginListWithTotalResponse = {
+  plugins: PluginDetail[]
+  total: number
+}
+
+export type InstalledLatestVersionResponse = {
+  versions: {
+    [plugin_id: string]: {
+      unique_identifier: string
+      version: string
+    } | null
+  }
+}
+
 export type UninstallPluginResponse = {
   success: boolean
 }
@@ -391,8 +412,7 @@ export type VersionProps = {
 export type StrategyParamItem = {
   name: string
   label: Record<Locale, string>
-  human_description: Record<Locale, string>
-  llm_description: string
+  help: Record<Locale, string>
   placeholder: Record<Locale, string>
   type: string
   scope: string

@@ -1,7 +1,9 @@
+import base64
 import json
+import secrets
+import string
 from collections.abc import Mapping
 from copy import deepcopy
-from random import randint
 from typing import Any, Literal
 from urllib.parse import urlencode, urlparse
 
@@ -87,6 +89,7 @@ class Executor:
         self.method = node_data.method
         self.auth = node_data.authorization
         self.timeout = timeout
+        self.ssl_verify = node_data.ssl_verify
         self.params = []
         self.headers = {}
         self.content = None
@@ -233,6 +236,10 @@ class Executor:
                                 files[key].append(file_tuple)
 
                     # convert files to list for httpx request
+                    # If there are no actual files, we still need to force httpx to use `multipart/form-data`.
+                    # This is achieved by inserting a harmless placeholder file that will be ignored by the server.
+                    if not files:
+                        self.files = [("__multipart_placeholder__", ("", b"", "application/octet-stream"))]
                     if files:
                         self.files = []
                         for key, file_tuples in files.items():
@@ -259,7 +266,12 @@ class Executor:
             if self.auth.config.type == "bearer":
                 headers[authorization.config.header] = f"Bearer {authorization.config.api_key}"
             elif self.auth.config.type == "basic":
-                headers[authorization.config.header] = f"Basic {authorization.config.api_key}"
+                credentials = authorization.config.api_key
+                if ":" in credentials:
+                    encoded_credentials = base64.b64encode(credentials.encode("utf-8")).decode("utf-8")
+                else:
+                    encoded_credentials = credentials
+                headers[authorization.config.header] = f"Basic {encoded_credentials}"
             elif self.auth.config.type == "custom":
                 headers[authorization.config.header] = authorization.config.api_key or ""
 
@@ -313,6 +325,7 @@ class Executor:
             "headers": headers,
             "params": self.params,
             "timeout": (self.timeout.connect, self.timeout.read, self.timeout.write),
+            "ssl_verify": self.ssl_verify,
             "follow_redirects": True,
             "max_retries": self.max_retries,
         }
@@ -365,7 +378,10 @@ class Executor:
             raw += f"{k}: {v}\r\n"
 
         body_string = ""
-        if self.files:
+        # Only log actual files if present.
+        # '__multipart_placeholder__' is inserted to force multipart encoding but is not a real file.
+        # This prevents logging meaningless placeholder entries.
+        if self.files and not all(f[0] == "__multipart_placeholder__" for f in self.files):
             for key, (filename, content, mime_type) in self.files:
                 body_string += f"--{boundary}\r\n"
                 body_string += f'Content-Disposition: form-data; name="{key}"\r\n\r\n'
@@ -419,4 +435,4 @@ def _generate_random_string(n: int) -> str:
         >>> _generate_random_string(5)
         'abcde'
     """
-    return "".join([chr(randint(97, 122)) for _ in range(n)])
+    return "".join(secrets.choice(string.ascii_lowercase) for _ in range(n))

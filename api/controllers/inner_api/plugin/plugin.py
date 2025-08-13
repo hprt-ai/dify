@@ -1,4 +1,4 @@
-from flask_restful import Resource  # type: ignore
+from flask_restful import Resource
 
 from controllers.console.wraps import setup_required
 from controllers.inner_api import api
@@ -13,6 +13,7 @@ from core.plugin.backwards_invocation.model import PluginModelBackwardsInvocatio
 from core.plugin.backwards_invocation.node import PluginNodeBackwardsInvocation
 from core.plugin.backwards_invocation.tool import PluginToolBackwardsInvocation
 from core.plugin.entities.request import (
+    RequestFetchAppInfo,
     RequestInvokeApp,
     RequestInvokeEncrypt,
     RequestInvokeLLM,
@@ -28,7 +29,7 @@ from core.plugin.entities.request import (
     RequestRequestUploadFile,
 )
 from core.tools.entities.tool_entities import ToolProviderType
-from libs.helper import compact_generate_response
+from libs.helper import length_prefixed_response
 from models.account import Account, Tenant
 from models.model import EndUser
 
@@ -43,7 +44,7 @@ class PluginInvokeLLMApi(Resource):
             response = PluginModelBackwardsInvocation.invoke_llm(user_model.id, tenant_model, payload)
             return PluginModelBackwardsInvocation.convert_to_event_stream(response)
 
-        return compact_generate_response(generator())
+        return length_prefixed_response(0xF, generator())
 
 
 class PluginInvokeTextEmbeddingApi(Resource):
@@ -100,7 +101,7 @@ class PluginInvokeTTSApi(Resource):
             )
             return PluginModelBackwardsInvocation.convert_to_event_stream(response)
 
-        return compact_generate_response(generator())
+        return length_prefixed_response(0xF, generator())
 
 
 class PluginInvokeSpeech2TextApi(Resource):
@@ -161,7 +162,7 @@ class PluginInvokeToolApi(Resource):
                 ),
             )
 
-        return compact_generate_response(generator())
+        return length_prefixed_response(0xF, generator())
 
 
 class PluginInvokeParameterExtractorNodeApi(Resource):
@@ -227,7 +228,7 @@ class PluginInvokeAppApi(Resource):
             files=payload.files,
         )
 
-        return compact_generate_response(PluginAppBackwardsInvocation.convert_to_event_stream(response))
+        return length_prefixed_response(0xF, PluginAppBackwardsInvocation.convert_to_event_stream(response))
 
 
 class PluginInvokeEncryptApi(Resource):
@@ -278,6 +279,17 @@ class PluginUploadFileRequestApi(Resource):
         return BaseBackwardsInvocationResponse(data={"url": url}).model_dump()
 
 
+class PluginFetchAppInfoApi(Resource):
+    @setup_required
+    @plugin_inner_api_only
+    @get_user_tenant
+    @plugin_data(payload_type=RequestFetchAppInfo)
+    def post(self, user_model: Account | EndUser, tenant_model: Tenant, payload: RequestFetchAppInfo):
+        return BaseBackwardsInvocationResponse(
+            data=PluginAppBackwardsInvocation.fetch_app_info(payload.app_id, tenant_model.id)
+        ).model_dump()
+
+
 api.add_resource(PluginInvokeLLMApi, "/invoke/llm")
 api.add_resource(PluginInvokeTextEmbeddingApi, "/invoke/text-embedding")
 api.add_resource(PluginInvokeRerankApi, "/invoke/rerank")
@@ -291,3 +303,4 @@ api.add_resource(PluginInvokeAppApi, "/invoke/app")
 api.add_resource(PluginInvokeEncryptApi, "/invoke/encrypt")
 api.add_resource(PluginInvokeSummaryApi, "/invoke/summary")
 api.add_resource(PluginUploadFileRequestApi, "/upload/file/request")
+api.add_resource(PluginFetchAppInfoApi, "/fetch/app/info")

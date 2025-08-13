@@ -1,6 +1,6 @@
 'use client'
 import type { FC } from 'react'
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
 import copy from 'copy-to-clipboard'
@@ -32,6 +32,7 @@ import cn from '@/utils/classnames'
 import ToolPicker from '@/app/components/workflow/block-selector/tool-picker'
 import type { ToolDefaultValue } from '@/app/components/workflow/block-selector/types'
 import { canFindTool } from '@/utils'
+import { useMittContextSelector } from '@/context/mitt-context'
 
 type AgentToolWithMoreInfo = AgentTool & { icon: any; collection?: Collection } | null
 const AgentTools: FC = () => {
@@ -39,7 +40,6 @@ const AgentTools: FC = () => {
   const [isShowChooseTool, setIsShowChooseTool] = useState(false)
   const { modelConfig, setModelConfig, collectionList } = useContext(ConfigContext)
   const formattingChangedDispatcher = useFormattingChangedDispatcher()
-
   const [currentTool, setCurrentTool] = useState<AgentToolWithMoreInfo>(null)
   const currentCollection = useMemo(() => {
     if (!currentTool) return null
@@ -61,6 +61,17 @@ const AgentTools: FC = () => {
       collection,
     }
   })
+  const useSubscribe = useMittContextSelector(s => s.useSubscribe)
+  const handleUpdateToolsWhenInstallToolSuccess = useCallback((installedPluginNames: string[]) => {
+    const newModelConfig = produce(modelConfig, (draft) => {
+      draft.agentConfig.tools.forEach((item: any) => {
+        if (item.isDeleted && installedPluginNames.includes(item.provider_id))
+          item.isDeleted = false
+      })
+    })
+    setModelConfig(newModelConfig)
+  }, [modelConfig, setModelConfig])
+  useSubscribe('plugin:install:success', handleUpdateToolsWhenInstallToolSuccess as any)
 
   const handleToolSettingChange = (value: Record<string, any>) => {
     const newModelConfig = produce(modelConfig, (draft) => {
@@ -73,7 +84,7 @@ const AgentTools: FC = () => {
     formattingChangedDispatcher()
   }
 
-  const handleToolAuthSetting = (value: any) => {
+  const handleToolAuthSetting = (value: AgentToolWithMoreInfo) => {
     const newModelConfig = produce(modelConfig, (draft) => {
       const tool = (draft.agentConfig.tools).find((item: any) => item.provider_id === value?.collection?.id && item.tool_name === value?.tool_name)
       if (tool)
@@ -121,7 +132,7 @@ const AgentTools: FC = () => {
         }
         headerRight={
           <div className='flex items-center'>
-            <div className='text-xs font-normal leading-[18px] text-text-tertiary'>{tools.filter((item: any) => !!item.enabled).length}/{tools.length}&nbsp;{t('appDebug.agent.tools.enabled')}</div>
+            <div className='text-xs font-normal leading-[18px] text-text-tertiary'>{tools.filter(item => !!item.enabled).length}/{tools.length}&nbsp;{t('appDebug.agent.tools.enabled')}</div>
             {tools.length < MAX_TOOLS_NUM && (
               <>
                 <div className='ml-3 mr-1 h-3.5 w-px bg-divider-regular'></div>
@@ -132,7 +143,7 @@ const AgentTools: FC = () => {
                   disabled={false}
                   supportAddCustomTool
                   onSelect={handleSelectTool}
-                  selectedTools={tools}
+                  selectedTools={tools as any}
                 />
               </>
             )}
@@ -273,7 +284,7 @@ const AgentTools: FC = () => {
       {isShowSettingTool && (
         <SettingBuiltInTool
           toolName={currentTool?.tool_name as string}
-          setting={currentTool?.tool_parameters as any}
+          setting={currentTool?.tool_parameters}
           collection={currentTool?.collection as Collection}
           isBuiltIn={currentTool?.collection?.type === CollectionType.builtIn}
           isModel={currentTool?.collection?.type === CollectionType.model}
@@ -291,7 +302,7 @@ const AgentTools: FC = () => {
               type: 'success',
               message: t('common.api.actionSuccess'),
             })
-            handleToolAuthSetting(currentTool as any)
+            handleToolAuthSetting(currentTool)
             setShowSettingAuth(false)
           }}
         />

@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next'
 import NextStep from './components/next-step'
 import PanelOperator from './components/panel-operator'
 import HelpLink from './components/help-link'
+import NodePosition from './components/node-position'
 import {
   DescriptionInput,
   TitleInput,
@@ -55,6 +56,9 @@ const BasePanel: FC<BasePanelProps> = ({
   id,
   data,
   children,
+  position,
+  width,
+  height,
 }) => {
   const { t } = useTranslation()
   const { showMessageLogModal } = useAppStore(useShallow(state => ({
@@ -119,7 +123,7 @@ const BasePanel: FC<BasePanelProps> = ({
           width: `${panelWidth}px`,
         }}
       >
-        <div className='sticky top-0 z-10 border-b-[0.5px] border-black/5 bg-components-panel-bg'>
+        <div className='sticky top-0 z-10 border-b-[0.5px] border-divider-regular bg-components-panel-bg'>
           <div className='flex items-center px-4 pb-1 pt-4'>
             <BlockIcon
               className='mr-1 shrink-0'
@@ -131,7 +135,7 @@ const BasePanel: FC<BasePanelProps> = ({
               value={data.title || ''}
               onBlur={handleTitleBlur}
             />
-            <div className='flex shrink-0 items-center text-gray-500'>
+            <div className='flex shrink-0 items-center text-text-tertiary'>
               {
                 canRunBySingle(data.type) && !nodesReadOnly && (
                   <Tooltip
@@ -139,7 +143,7 @@ const BasePanel: FC<BasePanelProps> = ({
                     popupClassName='mr-1'
                   >
                     <div
-                      className='mr-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-md hover:bg-black/5'
+                      className='mr-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-md hover:bg-state-base-hover'
                       onClick={() => {
                         handleNodeDataUpdate({ id, data: { _isSingleRun: true } })
                         handleSyncWorkflowDraft(true)
@@ -150,6 +154,7 @@ const BasePanel: FC<BasePanelProps> = ({
                   </Tooltip>
                 )
               }
+              <NodePosition nodePosition={position} nodeWidth={width} nodeHeight={height}></NodePosition>
               <HelpLink nodeType={data.type} />
               <PanelOperator id={id} data={data} showHelpLink={false} />
               <div className='mx-3 h-3.5 w-[1px] bg-divider-regular' />
@@ -169,7 +174,7 @@ const BasePanel: FC<BasePanelProps> = ({
           </div>
         </div>
         <div>
-          {cloneElement(children, { id, data })}
+          {cloneElement(children as any, { id, data })}
         </div>
         <Split />
         {
@@ -190,7 +195,7 @@ const BasePanel: FC<BasePanelProps> = ({
         }
         {
           !!availableNextBlocks.length && (
-            <div className='border-t-[0.5px] border-t-black/5 p-4'>
+            <div className='border-t-[0.5px] border-divider-regular p-4'>
               <div className='system-sm-semibold-uppercase mb-1 flex items-center text-text-secondary'>
                 {t('workflow.panel.nextStep').toLocaleUpperCase()}
               </div>

@@ -9,9 +9,10 @@ import {
 } from '../../hooks'
 import useAvailableVarList from '../_base/hooks/use-available-var-list'
 import useConfigVision from '../../hooks/use-config-vision'
-import type { LLMNodeType } from './types'
-import { useModelListAndDefaultModelAndCurrentProviderAndModel } from '@/app/components/header/account-setting/model-provider-page/hooks'
+import type { LLMNodeType, StructuredOutput } from './types'
+import { useModelList, useModelListAndDefaultModelAndCurrentProviderAndModel } from '@/app/components/header/account-setting/model-provider-page/hooks'
 import {
+  ModelFeatureEnum,
   ModelTypeEnum,
 } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import useNodeCrud from '@/app/components/workflow/nodes/_base/hooks/use-node-crud'
@@ -246,11 +247,11 @@ const useConfig = (id: string, payload: LLMNodeType) => {
   }, [inputs, setInputs])
 
   const handlePromptChange = useCallback((newPrompt: PromptItem[] | PromptItem) => {
-    const newInputs = produce(inputRef.current, (draft) => {
+    const newInputs = produce(inputs, (draft) => {
       draft.prompt_template = newPrompt
     })
     setInputs(newInputs)
-  }, [setInputs])
+  }, [inputs, setInputs])
 
   const handleMemoryChange = useCallback((newMemory?: Memory) => {
     const newInputs = produce(inputs, (draft) => {
@@ -273,6 +274,30 @@ const useConfig = (id: string, payload: LLMNodeType) => {
       else {
         draft.memory.query_prompt_template = newQuery
       }
+    })
+    setInputs(newInputs)
+  }, [inputs, setInputs])
+
+  // structure output
+  const { data: modelList } = useModelList(ModelTypeEnum.textGeneration)
+  const isModelSupportStructuredOutput = modelList
+    ?.find(provideItem => provideItem.provider === model?.provider)
+    ?.models.find(modelItem => modelItem.model === model?.name)
+    ?.features?.includes(ModelFeatureEnum.StructuredOutput)
+
+  const [structuredOutputCollapsed, setStructuredOutputCollapsed] = useState(true)
+  const handleStructureOutputEnableChange = useCallback((enabled: boolean) => {
+    const newInputs = produce(inputs, (draft) => {
+      draft.structured_output_enabled = enabled
+    })
+    setInputs(newInputs)
+    if (enabled)
+      setStructuredOutputCollapsed(false)
+  }, [inputs, setInputs])
+
+  const handleStructureOutputChange = useCallback((newOutput: StructuredOutput) => {
+    const newInputs = produce(inputs, (draft) => {
+      draft.structured_output = newOutput
     })
     setInputs(newInputs)
   }, [inputs, setInputs])
@@ -408,6 +433,11 @@ const useConfig = (id: string, payload: LLMNodeType) => {
     setContexts,
     varInputs,
     runningStatus,
+    isModelSupportStructuredOutput,
+    handleStructureOutputChange,
+    structuredOutputCollapsed,
+    setStructuredOutputCollapsed,
+    handleStructureOutputEnableChange,
     handleRun,
     handleStop,
     runResult,

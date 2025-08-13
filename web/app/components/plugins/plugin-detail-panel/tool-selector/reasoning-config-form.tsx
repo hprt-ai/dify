@@ -183,7 +183,7 @@ const ReasoningConfigForm: React.FC<Props> = ({
           <>
             {isString && (
               <Input
-                className={cn(inputsIsFocus[variable] ? 'border-gray-300 bg-gray-50 shadow-xs' : 'border-gray-100 bg-gray-100', 'rounded-lg border px-3 py-[6px]')}
+                className={cn(inputsIsFocus[variable] ? 'border-components-input-border-active bg-components-input-bg-active shadow-xs' : 'border-components-input-border-hover bg-components-input-bg-normal', 'rounded-lg border px-3 py-[6px]')}
                 value={varInput?.value as string || ''}
                 onChange={handleMixedTypeChange(variable)}
                 nodesOutputVars={nodeOutputVars}
@@ -245,7 +245,7 @@ const ReasoningConfigForm: React.FC<Props> = ({
                 popupClassName='!w-[387px]'
                 isAdvancedMode
                 isInWorkflow
-                value={varInput as any}
+                value={varInput}
                 setModel={handleModelChange(variable)}
                 scope={scope}
               />

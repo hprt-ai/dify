@@ -8,12 +8,12 @@ from core.file import File, FileTransferMethod
 from core.tools.tool_file_manager import ToolFileManager
 from core.workflow.entities.node_entities import NodeRunResult
 from core.workflow.entities.variable_entities import VariableSelector
+from core.workflow.entities.workflow_node_execution import WorkflowNodeExecutionStatus
 from core.workflow.nodes.base import BaseNode
 from core.workflow.nodes.enums import NodeType
 from core.workflow.nodes.http_request.executor import Executor
 from core.workflow.utils import variable_template_parser
 from factories import file_factory
-from models.workflow import WorkflowNodeExecutionStatus
 
 from .entities import (
     HttpRequestNodeData,
@@ -51,6 +51,7 @@ class HttpRequestNode(BaseNode[HttpRequestNodeData]):
                     "max_read_timeout": dify_config.HTTP_REQUEST_MAX_READ_TIMEOUT,
                     "max_write_timeout": dify_config.HTTP_REQUEST_MAX_WRITE_TIMEOUT,
                 },
+                "ssl_verify": dify_config.HTTP_REQUEST_NODE_SSL_VERIFY,
             },
             "retry_config": {
                 "max_retries": dify_config.SSRF_DEFAULT_MAX_RETRIES,
@@ -190,8 +191,9 @@ class HttpRequestNode(BaseNode[HttpRequestNodeData]):
         mime_type = (
             content_disposition_type or content_type or mimetypes.guess_type(filename)[0] or "application/octet-stream"
         )
+        tool_file_manager = ToolFileManager()
 
-        tool_file = ToolFileManager.create_file_by_raw(
+        tool_file = tool_file_manager.create_file_by_raw(
             user_id=self.user_id,
             tenant_id=self.tenant_id,
             conversation_id=None,

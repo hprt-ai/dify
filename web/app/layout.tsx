@@ -1,3 +1,4 @@
+import RoutePrefixHandle from './routePrefixHandle'
 import type { Viewport } from 'next'
 import I18nServer from './components/i18n-server'
 import BrowserInitor from './components/browser-initor'
@@ -7,10 +8,7 @@ import { TanstackQueryIniter } from '@/context/query-client'
 import { ThemeProvider } from 'next-themes'
 import './styles/globals.css'
 import './styles/markdown.scss'
-
-export const metadata = {
-  title: 'Dify',
-}
+import GlobalPublicStoreProvider from '@/context/global-public-context'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -53,24 +51,29 @@ const LocaleLayout = async ({
         data-public-indexing-max-segmentation-tokens-length={process.env.NEXT_PUBLIC_INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH}
         data-public-loop-node-max-count={process.env.NEXT_PUBLIC_LOOP_NODE_MAX_COUNT}
         data-public-max-iterations-num={process.env.NEXT_PUBLIC_MAX_ITERATIONS_NUM}
+        data-public-enable-website-jinareader={process.env.NEXT_PUBLIC_ENABLE_WEBSITE_JINAREADER}
+        data-public-enable-website-firecrawl={process.env.NEXT_PUBLIC_ENABLE_WEBSITE_FIRECRAWL}
+        data-public-enable-website-watercrawl={process.env.NEXT_PUBLIC_ENABLE_WEBSITE_WATERCRAWL}
       >
         <BrowserInitor>
           <SentryInitor>
             <TanstackQueryIniter>
               <ThemeProvider
                 attribute='data-theme'
-                forcedTheme='light'
-                defaultTheme='light' // TODO: change to 'system' when dark mode ready
+                defaultTheme='system'
                 enableSystem
                 disableTransitionOnChange
               >
                 <I18nServer>
-                  {children}
+                  <GlobalPublicStoreProvider>
+                    {children}
+                  </GlobalPublicStoreProvider>
                 </I18nServer>
               </ThemeProvider>
             </TanstackQueryIniter>
           </SentryInitor>
         </BrowserInitor>
+        <RoutePrefixHandle />
       </body>
     </html>
   )
