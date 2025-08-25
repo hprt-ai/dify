@@ -62,6 +62,21 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
+# Application specific logs and runtime files
+api/logs/
+api/volumes/
+api/KEYS
+api/LLEN
+*.db
+migration*.flag
+migration*.state
+vector_index_*
+*.indexcount
+*.proplengths
+*.proplengths.bak
+*.version
+*.proj
+
 # Flask stuff:
 instance/
 .webassets-cache
@@ -210,3 +225,16 @@ mise.toml
 
 # Next.js build output
 .next/
+
+# Temporary and test files
+api/core/rag/index_processor/processor/test.py
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Runtime environment files
+.env.local
+.env.development
+.env.production

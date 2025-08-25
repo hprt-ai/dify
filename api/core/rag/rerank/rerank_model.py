@@ -19,11 +19,11 @@ class RerankModelRunner(BaseRerankRunner):
     ) -> list[Document]:
         """
         Run rerank model
-        :param query: search query
-        :param documents: documents for reranking
-        :param score_threshold: score threshold
-        :param top_n: top n
-        :param user: unique user id if needed
+        :param query: 搜索query
+        :param documents: 需要重新排序的文档列表
+        :param score_threshold: 分数阈值
+        :param top_n: 返回的文档数量
+        :param user: 用户ID
         :return:
         """
         docs = []

@@ -3,10 +3,12 @@ FROM node:22-alpine3.21 AS base
 LABEL maintainer="takatost@gmail.com"
 
 # if you located in China, you can use aliyun mirror to speed up
-# RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
-RUN apk add --no-cache tzdata
-RUN npm install -g pnpm@10.11.1
+RUN apk update && apk add --no-cache tzdata
+RUN npm config set registry https://registry.npmmirror.com/ \
+    && npm install -g pnpm@10.11.1 \
+    && pnpm config set registry https://registry.npmmirror.com/
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
@@ -22,6 +24,8 @@ COPY pnpm-lock.yaml .
 # if you located in China, you can use taobao registry to speed up
 # RUN pnpm install --frozen-lockfile --registry https://registry.npmmirror.com/
 
+ENV PNPM_FETCH_TIMEOUT=600000
+ENV PNPM_NETWORK_CONCURRENCY=16
 RUN pnpm install --frozen-lockfile
 
 # build resources

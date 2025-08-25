@@ -7,6 +7,7 @@ import os
 import re
 import tempfile
 import uuid
+from typing import Optional
 from urllib.parse import urlparse
 from xml.etree import ElementTree
 
@@ -32,16 +33,17 @@ class WordExtractor(BaseExtractor):
         file_path: Path to the file to load.
     """
 
-    def __init__(self, file_path: str, tenant_id: str, user_id: str):
+    def __init__(self, file_path: str, tenant_id: str, user_id: str, document_model: Optional[str] = None):
         """Initialize with file path."""
         self.file_path = file_path
         self.tenant_id = tenant_id
         self.user_id = user_id
+        self.document_model = document_model  # 添加document_model参数
 
         if "~" in self.file_path:
             self.file_path = os.path.expanduser(self.file_path)
 
-        # If the file is a web path, download it to a temporary file, and use that
+        # 如果文件是web路径，下载到临时文件，并使用该文件
         if not os.path.isfile(self.file_path) and self._is_valid_url(self.file_path):
             r = requests.get(self.file_path)
 
@@ -61,7 +63,7 @@ class WordExtractor(BaseExtractor):
             self.temp_file.close()
 
     def extract(self) -> list[Document]:
-        """Load given path as single page."""
+        """提取docx文件内容"""
         content = self.parse_docx(self.file_path, "storage")
         return [
             Document(
@@ -203,7 +205,9 @@ class WordExtractor(BaseExtractor):
                 paragraph_content.append(run.text.strip())
         return " ".join(paragraph_content) if paragraph_content else ""
 
+
     def parse_docx(self, docx_path, image_folder):
+        """解析docx文件，提取文本内容、图片、超链接和表格"""
         doc = DocxDocument(docx_path)
         os.makedirs(image_folder, exist_ok=True)
 
@@ -212,6 +216,7 @@ class WordExtractor(BaseExtractor):
         image_map = self._extract_images_from_docx(doc)
 
         hyperlinks_url = None
+        # 提取超链接URL
         url_pattern = re.compile(r"http://[^\s+]+//|https://[^\s+]+")
         for para in doc.paragraphs:
             for run in para.runs:
@@ -235,13 +240,16 @@ class WordExtractor(BaseExtractor):
                         logger.exception("Failed to parse HYPERLINK xml")
 
         def parse_paragraph(paragraph):
+            """解析单个段落，提取文本和图片"""
             paragraph_content = []
             for run in paragraph.runs:
+                # 处理图片
                 if hasattr(run.element, "tag") and isinstance(run.element.tag, str) and run.element.tag.endswith("r"):
                     drawing_elements = run.element.findall(
                         ".//{http://schemas.openxmlformats.org/wordprocessingml/2006/main}drawing"
                     )
                     for drawing in drawing_elements:
+                        # 查找blip元素（图片引用）
                         blip_elements = drawing.findall(
                             ".//{http://schemas.openxmlformats.org/drawingml/2006/main}blip"
                         )
@@ -253,22 +261,49 @@ class WordExtractor(BaseExtractor):
                                 image_part = doc.part.related_parts.get(embed_id)
                                 if image_part in image_map:
                                     paragraph_content.append(image_map[image_part])
-                if run.text.strip():
-                    paragraph_content.append(run.text.strip())
-            return "".join(paragraph_content) if paragraph_content else ""
+                # 处理文本
+                if run.text:
+                    # 在QA模式下，保持换行符
+                    if self.document_model == "qa_model":
+                        paragraph_content.append(run.text)
+                    else:
+                        paragraph_content.append(run.text.strip())
+            
+            result = "".join(paragraph_content) if paragraph_content else ""
+            return result
 
         paragraphs = doc.paragraphs.copy()
         tables = doc.tables.copy()
-        for element in doc.element.body:
-            if hasattr(element, "tag"):
-                if isinstance(element.tag, str) and element.tag.endswith("p"):  # paragraph
-                    para = paragraphs.pop(0)
-                    parsed_paragraph = parse_paragraph(para)
-                    if parsed_paragraph.strip():
-                        content.append(parsed_paragraph)
-                    else:
-                        content.append("\n")
-                elif isinstance(element.tag, str) and element.tag.endswith("tbl"):  # table
-                    table = tables.pop(0)
-                    content.append(self._table_to_markdown(table, image_map))
-        return "\n".join(content)
+        
+        # 检查是否为QA模式
+        is_qa_mode = self.document_model == "qa_model"
+        
+        if is_qa_mode:
+            # QA模式：只提取原始内容，不做QA识别
+            
+            # 将所有段落内容合并，保持原始格式
+            all_text = ""
+            for i, para in enumerate(paragraphs):
+                para_text = para.text.strip()
+                if para_text:
+                    all_text += para_text + "\n"
+            return all_text
+        else:
+            # 非QA模式：使用原来的逻辑
+            # 按文档结构顺序处理所有元素
+            for element in doc.element.body:
+                if hasattr(element, "tag"):
+                    # 处理段落
+                    if isinstance(element.tag, str) and element.tag.endswith("p"):  # paragraph
+                        para = paragraphs.pop(0)
+                        parsed_paragraph = parse_paragraph(para)
+                        if parsed_paragraph.strip():
+                            content.append(parsed_paragraph)
+                        else:
+                            content.append("\n")
+                    # 处理表格
+                    elif isinstance(element.tag, str) and element.tag.endswith("tbl"):  # table
+                        table = tables.pop(0)
+                        content.append(self._table_to_markdown(table, image_map))
+            # 将所有内容用换行符连接，返回最终的Markdown文本
+            return "\n".join(content)

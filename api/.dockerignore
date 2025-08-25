@@ -1,19 +1,38 @@
+.git
+.gitignore
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+*.swp
+*.swo
 .env
-*.env.*
-
-storage/generate_files/*
-storage/privkeys/*
-storage/tools/*
-storage/upload_files/*
-
-# Logs
-logs
-*.log*
-
-# jetbrains
+.env.*
+node_modules
+dist
+builda.git
+.gitignore
+**/__pycache__/
+**/*.py[cod]
+*.log
+.env
+.env.*
+venv/
+.venv/
+dist/
+build/
+cache/
+logs/
+volumes/
+storage/
+celery.log
+celery_worker.log
 .idea
-.mypy_cache
-.ruff_cache
+.vscode
 
-# venv
-.venv
+cache
+.idea
+.vscode
+# 如果你只需要构建 api，也可以忽略其它大目录（按需）
+# web/
+# worker/

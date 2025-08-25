@@ -95,7 +95,7 @@ class CouchbaseVector(BaseVector):
     "sourceName": "Embeddings",
     "sourceUUID": "2242e4a25b4decd6650c9c7b3afa1dbf",
     "planParams": {
-      "maxPartitionsPerPIndex": 1024,
+      "maxPartitionsPerPIndex": 4000,
       "indexPartitions": 1
     },
     "params": {

@@ -72,8 +72,14 @@ class IndexingRunner:
 
                 # 转换文本
                 documents = self._transform(
-                    index_processor, dataset, text_docs, dataset_document.doc_language, processing_rule.to_dict()
+                    index_processor,
+                    dataset,
+                    text_docs,
+                    dataset_document.doc_language,
+                    processing_rule.to_dict(),
+                    document_model=dataset_document.doc_form,
                 )
+
                 # 保存分段
                 self._load_segments(dataset, dataset_document, documents)
 
@@ -138,7 +144,12 @@ class IndexingRunner:
 
             # transform
             documents = self._transform(
-                index_processor, dataset, text_docs, dataset_document.doc_language, processing_rule.to_dict()
+                index_processor,
+                dataset,
+                text_docs,
+                dataset_document.doc_language,
+                processing_rule.to_dict(),
+                document_model=dataset_document.doc_form,
             )
             # save segment
             self._load_segments(dataset, dataset_document, documents)
@@ -302,6 +313,7 @@ class IndexingRunner:
                 tenant_id=current_user.current_tenant_id,
                 doc_language=doc_language,
                 preview=True,
+                document_model=doc_form,
             )
             total_segments += len(documents)
             for document in documents:
@@ -698,6 +710,7 @@ class IndexingRunner:
         text_docs: list[Document],
         doc_language: str,
         process_rule: dict,
+        document_model: Optional[str] = None,
     ) -> list[Document]:
         # get embedding model instance
         embedding_model_instance = None
@@ -721,6 +734,7 @@ class IndexingRunner:
             process_rule=process_rule,
             tenant_id=dataset.tenant_id,
             doc_language=doc_language,
+            document_model=document_model,
         )
 
         return documents

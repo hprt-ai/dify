@@ -122,7 +122,9 @@ class ExtractProcessor:
                     elif file_extension in {".htm", ".html"}:
                         extractor = HtmlExtractor(file_path)
                     elif file_extension == ".docx":
-                        extractor = WordExtractor(file_path, upload_file.tenant_id, upload_file.created_by)
+                        extractor = WordExtractor(
+                            file_path, upload_file.tenant_id, upload_file.created_by, extract_setting.document_model
+                        )
                     elif file_extension == ".doc":
                         extractor = UnstructuredWordExtractor(file_path, unstructured_api_url, unstructured_api_key)
                     elif file_extension == ".csv":
@@ -154,7 +156,9 @@ class ExtractProcessor:
                     elif file_extension in {".htm", ".html"}:
                         extractor = HtmlExtractor(file_path)
                     elif file_extension == ".docx":
-                        extractor = WordExtractor(file_path, upload_file.tenant_id, upload_file.created_by)
+                        extractor = WordExtractor(
+                            file_path, upload_file.tenant_id, upload_file.created_by, extract_setting.document_model
+                        )
                     elif file_extension == ".csv":
                         extractor = CSVExtractor(file_path, autodetect_encoding=True)
                     elif file_extension == ".epub":

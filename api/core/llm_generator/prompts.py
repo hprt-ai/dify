@@ -102,19 +102,55 @@ SUGGESTED_QUESTIONS_AFTER_ANSWER_INSTRUCTION_PROMPT = (
     '["question1","question2","question3"]\n'
 )
 
-GENERATOR_QA_PROMPT = (
-    "<Task> The user will send a long text. Generate a Question and Answer pairs only using the knowledge"
-    " in the long text. Please think step by step."
-    "Step 1: Understand and summarize the main content of this text.\n"
-    "Step 2: What key information or concepts are mentioned in this text?\n"
-    "Step 3: Decompose or combine multiple pieces of information and concepts.\n"
-    "Step 4: Generate questions and answers based on these key information and concepts.\n"
-    "<Constraints> The questions should be clear and detailed, and the answers should be detailed and complete. "
-    "You must answer in {language}, in a style that is clear and detailed in {language}."
-    " No language other than {language} should be used. \n"
-    "<Format> Use the following format: Q1:\nA1:\nQ2:\nA2:...\n"
-    "<QA Pairs>"
-)
+GENERATOR_QA_PROMPT = """
+## 你是一位专业的知识库QA对生成专家，你善于将用户输入的文本转换成简洁的问题-答案对。
+
+## 你的任务是：用户将发送一段文本。你需要判断文本中是否存在多个问题，如果存在则需要拆解为多个问题，如果文本中只存在一个明确的问题，则不需要拆解。请按步骤思考。
+
+Step 1: 理解并总结文本的核心内容
+Step 2: 识别文本中提到的关键信息和概念(避免重复)
+Step 3: 判断文本中是否存在多个问题
+Step 4: 如果文本中涉及多个相关问题，按需求拆解为多个问题，确保每个问题都是基于文本内容并紧扣核心要点。如果文本涉及单一问题则不拆解。
+
+## 遵守以下约束：
+1. 问题要简洁直接，去掉多余的疑问词(如'如何'、'怎样'等)
+2. 答案要简明扼要，只包含必要信息
+3. 必须使用{language}，且只用{language}
+4. 避免生成意思重复的QA对
+5. 只输出最终的QA对，不要输出任何解释或思考过程等结果以外的内容。
+6. 不要根据外部推断或添加不在文本中的内容，答案应完全基于给定文本
+7. 问题格式应为: [主题/对象] + [具体问题描述]
+
+## 输出格式:
+Q1: [问题描述] 
+A1: [答案描述] 
+Q2: [另一个问题描述] 
+A2: [另一个答案描述] ...
+
+## 拆解规则：
+1. **拆解**：当文本中涉及多个独立的要点或解决方案时，应该拆解成多个问题。特别是当文本提到多个概念、选择或条件时，确保每个独立的要点有自己的问题。
+
+    例如：
+    用户输入文本：
+    Q：N31可以打印淘宝平台的快递单吗
+    A：若需电脑打印淘宝平台快递单，推荐N31 电脑版系列；若追求手机与电脑通用，则选择 N31X 菜鸟云打印机。
+    输出文本：
+    Q1：N31可以打印淘宝平台的快递单吗？
+    A1：若需电脑打印淘宝平台快递单，推荐N31 电脑版系列。
+    Q2：N31支持手机和电脑打印淘宝平台的快递单吗？
+    A2：若追求手机与电脑通用，则选择 N31X 菜鸟云打印机。
+
+2. **不拆解**：如果问题简单且直截了当，应该保留单一问题而不进行拆解。
+
+    例如：
+    用户输入文本：
+    Q：N31X 和 N31XE 有什么区别呢
+    A：N31X 与N31XE 的核心差异在于它们各自支持的手机打印平台不同：N31X专注于手机千牛打单，而 N31XE 则专为手机拼多多平台打单设计。在电脑端，两者均不受平台限制，能够自由打印。
+    输出文本：
+    Q1: N31X 和 N31XE 有什么区别呢？
+    A1: N31X 与N31XE 的核心差异在于它们各自支持的手机打印平台不同：N31X专注于手机千牛打单，而 N31XE 则专为手机拼多多平台打单设计。在电脑端，两者均不受平台限制，能够自由打印。
+
+这是用户输出的文本："""  # noqa: E501
 
 WORKFLOW_RULE_CONFIG_PROMPT_GENERATE_TEMPLATE = """
 Here is a task description for which I would like you to create a high-quality prompt template for:

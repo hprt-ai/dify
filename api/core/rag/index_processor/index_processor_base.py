@@ -79,7 +79,7 @@ class BaseIndexProcessor(ABC):
                 embedding_model_instance=embedding_model_instance,
             )
         else:
-            # Automatic segmentation
+            # 自动分段
             character_splitter = EnhanceRecursiveCharacterTextSplitter.from_encoder(
                 chunk_size=DatasetProcessRule.AUTOMATIC_RULES["segmentation"]["max_tokens"],
                 chunk_overlap=DatasetProcessRule.AUTOMATIC_RULES["segmentation"]["chunk_overlap"],

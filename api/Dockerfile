@@ -6,13 +6,13 @@ WORKDIR /app/api
 # Install uv
 ENV UV_VERSION=0.7.11
 
-RUN pip install --no-cache-dir uv==${UV_VERSION}
+RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ uv==${UV_VERSION}
 
 
 FROM base AS packages
 
 # if you located in China, you can use aliyun mirror to speed up
-# RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
+RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends gcc g++ libc-dev libffi-dev libgmp-dev libmpfr-dev libmpc-dev
@@ -39,6 +39,9 @@ ENV TZ=UTC
 
 WORKDIR /app/api
 
+# Use Aliyun mirror in production stage too to speed up apt
+RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
+
 RUN \
     apt-get update \
     # Install dependencies
@@ -59,12 +62,15 @@ ENV VIRTUAL_ENV=/app/api/.venv
 COPY --from=packages ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
-# Download nltk data
-RUN python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger')"
+# Optional: pre-download NLTK data (disabled by default due to network)
+ENV NLTK_DATA=/app/api/.nltk_data
+ARG DOWNLOAD_NLTK=false
+RUN if [ "$DOWNLOAD_NLTK" = "true" ]; then python -c "import nltk; nltk.download('punkt', download_dir='/app/api/.nltk_data'); nltk.download('averaged_perceptron_tagger', download_dir='/app/api/.nltk_data')"; fi
 
+# Optional: pre-warm tiktoken (disabled by default due to network)
 ENV TIKTOKEN_CACHE_DIR=/app/api/.tiktoken_cache
-
-RUN python -c "import tiktoken; tiktoken.encoding_for_model('gpt2')"
+ARG PREWARM_TIKTOKEN=false
+RUN if [ "$PREWARM_TIKTOKEN" = "true" ]; then python -c "import tiktoken; tiktoken.encoding_for_model('gpt2')"; fi
 
 # Copy source code
 COPY . /app/api/

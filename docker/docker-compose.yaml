@@ -513,8 +513,9 @@ services:
   api:
     # 新项目容器名称
     container_name: hanni_dify_api
-    # image: langgenius/dify-api:1.2.0
-    image: localhost:5000/dify-api:devzzl
+    # image: langgenius/dify-api:1.4.3
+    # image: localhost:5000/dify-api:devzzl
+    image: localhost:5000/dify-api:hanni_v1.2
     restart: always
     ports:
       - "5888:5001"
@@ -547,7 +548,7 @@ services:
   worker:
     # 新项目容器名称
     container_name: hanni_dify_worker
-    image: docker.io/langgenius/dify-api:1.2.0
+    image: localhost:5000/dify-api:hanni_v1.2
     restart: always
     environment:
       # Use the shared environment variables.
@@ -575,7 +576,7 @@ services:
   web:
     # 新项目容器名称
     container_name: hanni_dify_web
-    image: localhost:5000/dify-web:devzzl
+    image: localhost:5000/dify-web:hanni_v1.2
     restart: always
     ports:
       - "3888:3000"
@@ -647,7 +648,7 @@ services:
     # 新项目容器名称
     container_name: hanni_dify_sandbox
     # image: langgenius/dify-sandbox:0.2.11
-    image: docker.io/langgenius/dify-sandbox:0.2.11
+    image: docker.io/langgenius/dify-sandbox:0.2.12
 
     restart: always
     environment:
@@ -675,7 +676,7 @@ services:
     # 新项目容器名称
     container_name: hanni_dify_plugin_daemon
     # image: langgenius/dify-plugin-daemon:0.0.7-local
-    image: docker.io/langgenius/dify-plugin-daemon:0.0.7-local
+    image: docker.io/langgenius/dify-plugin-daemon:0.1.2-local
 
     restart: always
     environment:
@@ -703,9 +704,7 @@ services:
       PLUGIN_MEDIA_CACHE_PATH: ${PLUGIN_MEDIA_CACHE_PATH:-assets}
       PLUGIN_STORAGE_OSS_BUCKET: ${PLUGIN_STORAGE_OSS_BUCKET:-}
       S3_USE_AWS_MANAGED_IAM: ${PLUGIN_S3_USE_AWS_MANAGED_IAM:-false}
-      S3_USE_AWS_MANAGED_IAM: ${PLUGIN_S3_USE_AWS_MANAGED_IAM:-false}
       S3_ENDPOINT: ${PLUGIN_S3_ENDPOINT:-}
-      S3_USE_PATH_STYLE: ${PLUGIN_S3_USE_PATH_STYLE:-false}
       S3_USE_PATH_STYLE: ${PLUGIN_S3_USE_PATH_STYLE:-false}
       AWS_ACCESS_KEY: ${PLUGIN_AWS_ACCESS_KEY:-}
       AWS_SECRET_KEY: ${PLUGIN_AWS_SECRET_KEY:-}

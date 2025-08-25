@@ -12,10 +12,14 @@ type Props = {
 }
 
 const maxTopK = (() => {
-  const configValue = Number.parseInt(globalThis.document?.body?.getAttribute('data-public-top-k-max-value') || '', 10)
-  if (configValue && !isNaN(configValue))
-    return configValue
-  return 10
+  // 直接使用固定值，忽略环境变量配置
+  return 100
+
+  // 或者如果你想保留环境变量但优先级较低，可以这样写：
+  // const configValue = Number.parseInt(globalThis.document?.body?.getAttribute('data-public-top-k-max-value') || '', 10)
+  // if (configValue && !isNaN(configValue) && configValue > 0)
+  //   return Math.max(configValue, 100)  // 确保至少是100
+  // return 100
 })()
 const VALUE_LIMIT = {
   default: 2,
