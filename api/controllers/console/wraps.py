@@ -22,14 +22,16 @@ from .error import NotInitValidateError, NotSetupError, UnauthorizedAndForceLogo
 def account_initialization_required(view):
     @wraps(view)
     def decorated(*args, **kwargs):
+        # 检查是否是API Key认证
+        from flask import request
+        if hasattr(request, 'auth_type') and request.auth_type == 'api_key':
+            return view(*args, **kwargs)
+        
         # check account initialization
         account = current_user
-
         if account.status == AccountStatus.UNINITIALIZED:
             raise AccountNotInitializedError()
-
         return view(*args, **kwargs)
-
     return decorated
 
 
@@ -144,6 +146,11 @@ def cloud_edition_billing_rate_limit_check(resource: str):
     def interceptor(view):
         @wraps(view)
         def decorated(*args, **kwargs):
+            # 检查是否是API Key认证
+            from flask import request
+            if hasattr(request, 'auth_type') and request.auth_type == 'api_key':
+                return view(*args, **kwargs)
+            
             if resource == "knowledge":
                 knowledge_rate_limit = FeatureService.get_knowledge_rate_limit(current_user.current_tenant_id)
                 if knowledge_rate_limit.enabled:
