@@ -515,9 +515,7 @@ services:
     container_name: hanni_dify_api
     # image: langgenius/dify-api:1.4.3
     # image: localhost:5000/dify-api:devzzl
-    # image: localhost:5000/dify-api:hanni_v1.2 更新到1.4.3版本，修改QA模型的提取
-    # image: localhost:5000/dify-api:hanni_v1.2.1 更新召回测试API接口
-    image: localhost:5000/dify-api:hanni_v1.2.1
+    image: localhost:5000/dify-api:hanni_v1.2
     restart: always
     ports:
       - "5888:5001"
@@ -550,8 +548,7 @@ services:
   worker:
     # 新项目容器名称
     container_name: hanni_dify_worker
-    # image: localhost:5000/dify-api:hanni_v1.2
-    image: localhost:5000/dify-api:hanni_v1.2.1
+    image: localhost:5000/dify-api:hanni_v1.2
     restart: always
     environment:
       # Use the shared environment variables.

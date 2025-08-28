@@ -15,9 +15,7 @@ def create_flask_app_with_configs() -> DifyApp:
     with configs loaded from .env file
     """
     dify_app = DifyApp(__name__)
-    dify_app.config.from_mapping(dify_config.model_dump())   
-    # 设置 JSON 编码，让中文正常显示而不是 Unicode 编码
-    dify_app.config['JSON_AS_ASCII'] = False
+    dify_app.config.from_mapping(dify_config.model_dump())
 
     # add before request hook
     @dify_app.before_request
