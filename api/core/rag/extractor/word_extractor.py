@@ -18,6 +18,7 @@ from configs import dify_config
 from core.helper import ssrf_proxy
 from core.rag.extractor.extractor_base import BaseExtractor
 from core.rag.models.document import Document
+from core.rag.index_processor.constant.index_type import IndexType
 from extensions.ext_database import db
 from extensions.ext_storage import storage
 from models.enums import CreatorUserRole
@@ -264,7 +265,7 @@ class WordExtractor(BaseExtractor):
                 # 处理文本
                 if run.text:
                     # 在QA模式下，保持换行符
-                    if self.document_model == "qa_model":
+                    if self.document_model == IndexType.QA_INDEX:
                         paragraph_content.append(run.text)
                     else:
                         paragraph_content.append(run.text.strip())
@@ -276,7 +277,7 @@ class WordExtractor(BaseExtractor):
         tables = doc.tables.copy()
         
         # 检查是否为QA模式
-        is_qa_mode = self.document_model == "qa_model"
+        is_qa_mode = self.document_model == IndexType.QA_INDEX
         
         if is_qa_mode:
             # QA模式：只提取原始内容，不做QA识别

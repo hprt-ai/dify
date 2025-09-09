@@ -5,37 +5,6 @@ import sys
 __import__('os').environ['GEVENT_SUPPORT'] = 'true'
 
 
-def _setup_logging_for_container() -> None:
-    """Configure root logger to write to stdout for Docker.
-
-    - Level comes from LOG_LEVEL env (default INFO)
-    - Idempotent: clears existing handlers to avoid duplicate logs
-    """
-    log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
-
-    # Build formatter
-    formatter = logging.Formatter(
-        fmt='%(asctime)s %(levelname)s [%(name)s] %(message)s'
-    )
-
-    root_logger = logging.getLogger()
-    try:
-        root_logger.setLevel(log_level)
-    except Exception:
-        root_logger.setLevel(logging.INFO)
-
-    # Remove existing handlers to prevent duplicate outputs (gunicorn/gevent)
-    for h in list(root_logger.handlers):
-        root_logger.removeHandler(h)
-
-    stream_handler = logging.StreamHandler(sys.stdout)
-    stream_handler.setFormatter(formatter)
-    root_logger.addHandler(stream_handler)
-
-
-_setup_logging_for_container()
-
-
 def is_db_command():
     if len(sys.argv) > 1 and sys.argv[0].endswith("flask") and sys.argv[1] == "db":
         return True
