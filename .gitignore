@@ -194,6 +194,7 @@ docker/volumes/pgvecto_rs/data/*
 docker/volumes/couchbase/*
 docker/volumes/oceanbase/*
 docker/volumes/plugin_daemon/*
+docker/volumes/matrixone/*
 !docker/volumes/oceanbase/init.d
 
 docker/nginx/conf.d/default.conf
@@ -238,3 +239,7 @@ api/core/rag/index_processor/processor/test.py
 .env.local
 .env.development
 .env.production
+
+# AI Assistant
+.roo/
+api/.env.backup

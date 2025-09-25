@@ -19,6 +19,12 @@ RUN apt-get update \
 
 # Install Python dependencies
 COPY pyproject.toml uv.lock ./
+# 设置多个镜像源优先级：清华源 -> 阿里源 -> 官方源
+ENV UV_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple/
+ENV UV_EXTRA_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/,https://pypi.org/simple/
+ENV UV_HTTP_TIMEOUT=600
+ENV UV_CONNECT_TIMEOUT=60
+ENV UV_READ_TIMEOUT=300
 RUN uv sync --locked
 
 # production stage
@@ -37,6 +43,11 @@ EXPOSE 5001
 # set timezone
 ENV TZ=UTC
 
+# Set UTF-8 locale
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV PYTHONIOENCODING=utf-8
+
 WORKDIR /app/api
 
 # Use Aliyun mirror in production stage too to speed up apt
@@ -50,6 +61,8 @@ RUN \
         curl nodejs libgmp-dev libmpfr-dev libmpc-dev \
         # For Security
         expat libldap-2.5-0 perl libsqlite3-0 zlib1g \
+        # install fonts to support the use of tools like pypdfium2
+        fonts-noto-cjk \
         # install a package to improve the accuracy of guessing mime type and file extension
         media-types \
         # install libmagic to support the use of python-magic guess MIMETYPE

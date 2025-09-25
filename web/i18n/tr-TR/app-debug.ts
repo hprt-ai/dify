@@ -329,6 +329,9 @@ const translation = {
       atLeastOneOption: 'En az bir seçenek gereklidir',
       optionRepeat: 'Yinelenen seçenekler var',
     },
+    defaultValue: 'Varsayılan değer',
+    noDefaultValue: 'Varsayılan değer yok',
+    selectDefaultValue: 'Varsayılan değer seç',
   },
   vision: {
     name: 'Görüş',
@@ -368,6 +371,7 @@ const translation = {
     writeOpener: 'Başlangıç mesajı yaz',
     placeholder: 'Başlangıç mesajınızı buraya yazın, değişkenler kullanabilirsiniz, örneğin {{variable}} yazmayı deneyin.',
     openingQuestion: 'Açılış Soruları',
+    openingQuestionPlaceholder: 'Değişkenler kullanabilirsiniz, {{variable}} yazmayı deneyin.',
     noDataPlaceHolder:
       'Kullanıcı ile konuşmayı başlatmak, AI\'ın konuşma uygulamalarında onlarla daha yakın bir bağlantı kurmasına yardımcı olabilir.',
     varTip: 'Değişkenler kullanabilirsiniz, örneğin {{variable}} yazmayı deneyin',

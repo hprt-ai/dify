@@ -288,6 +288,9 @@ const translation = {
       atLeastOneOption: 'Se requiere al menos una opción',
       optionRepeat: 'Hay opciones repetidas',
     },
+    'defaultValue': 'Valor predeterminado',
+    'noDefaultValue': 'Sin valor predeterminado',
+    'selectDefaultValue': 'Seleccionar valor predeterminado',
   },
   vision: {
     name: 'Visión',
@@ -329,6 +332,7 @@ const translation = {
     writeOpener: 'Escribir apertura',
     placeholder: 'Escribe tu mensaje de apertura aquí, puedes usar variables, intenta escribir {{variable}}.',
     openingQuestion: 'Preguntas de Apertura',
+    openingQuestionPlaceholder: 'Puede usar variables, intente escribir {{variable}}.',
     noDataPlaceHolder: 'Iniciar la conversación con el usuario puede ayudar a la IA a establecer una conexión más cercana con ellos en aplicaciones de conversación.',
     varTip: 'Puedes usar variables, intenta escribir {{variable}}',
     tooShort: 'Se requieren al menos 20 palabras en la indicación inicial para generar una apertura de conversación.',

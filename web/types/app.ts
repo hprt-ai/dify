@@ -1,6 +1,6 @@
 import type { AnnotationReplyConfig, ChatPromptConfig, CompletionPromptConfig, DatasetConfigs, PromptMode } from '@/models/debug'
 import type { CollectionType } from '@/app/components/tools/types'
-import type { LanguagesSupported } from '@/i18n/language'
+import type { LanguagesSupported } from '@/i18n-config/language'
 import type { Tag } from '@/app/components/base/tag-management/constant'
 import type {
   RerankingModeEnum,
@@ -90,6 +90,7 @@ export type TextTypeFormItem = {
   variable: string
   required: boolean
   max_length: number
+  hide: boolean
 }
 
 export type SelectTypeFormItem = {
@@ -98,6 +99,7 @@ export type SelectTypeFormItem = {
   variable: string
   required: boolean
   options: string[]
+  hide: boolean
 }
 
 export type ParagraphTypeFormItem = {
@@ -105,6 +107,7 @@ export type ParagraphTypeFormItem = {
   label: string
   variable: string
   required: boolean
+  hide: boolean
 }
 /**
  * User Input Form Item
@@ -127,6 +130,7 @@ export type AgentTool = {
   enabled: boolean
   isDeleted?: boolean
   notAuthor?: boolean
+  credential_id?: string
 }
 
 export type ToolItem = {
@@ -366,6 +370,7 @@ export type App = {
   }
   /** access control */
   access_mode: AccessMode
+  max_active_requests?: number | null
 }
 
 export type AppSSO = {

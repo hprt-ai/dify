@@ -287,6 +287,9 @@ const translation = {
       atLeastOneOption: '적어도 하나의 옵션이 필요합니다',
       optionRepeat: '옵션이 중복되어 있습니다',
     },
+    'defaultValue': '기본값',
+    'noDefaultValue': '기본값 없음',
+    'selectDefaultValue': '기본값 선택',
   },
   vision: {
     name: '비전',
@@ -328,6 +331,7 @@ const translation = {
     writeOpener: '오프너 작성',
     placeholder: '여기에 오프너 메시지를 작성하세요. 변수를 사용할 수 있습니다. {{variable}}를 입력해보세요.',
     openingQuestion: '시작 질문',
+    openingQuestionPlaceholder: '변수를 사용할 수 있습니다. {{variable}}을(를) 입력해 보세요.',
     noDataPlaceHolder: '사용자와의 대화를 시작하면 대화 애플리케이션에서 그들과 더 밀접한 관계를 구축하는 데 도움이 됩니다.',
     varTip: '변수를 사용할 수 있습니다. {{variable}}를 입력해보세요.',
     tooShort: '대화 시작에는 최소 20 단어의 초기 프롬프트가 필요합니다.',

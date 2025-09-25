@@ -287,6 +287,9 @@ const translation = {
       atLeastOneOption: 'Потрібно щонайменше одну опцію',
       optionRepeat: 'Є повторні опції',
     },
+    'defaultValue': 'Значення за замовчуванням',
+    'noDefaultValue': 'Без значення за замовчуванням',
+    'selectDefaultValue': 'Обрати значення за замовчуванням',
   },
   vision: {
     name: 'Зображення', // Vision
@@ -328,6 +331,7 @@ const translation = {
     writeOpener: 'Напишіть вступне повідомлення', // Write opener
     placeholder: 'Напишіть тут своє вступне повідомлення, ви можете використовувати змінні, спробуйте ввести {{variable}}.', // Write your opener message here...
     openingQuestion: 'Відкриваючі питання', // Opening Questions
+    openingQuestionPlaceholder: 'Ви можете використовувати змінні, спробуйте ввести {{variable}}.',
     noDataPlaceHolder: 'Початок розмови з користувачем може допомогти ШІ встановити більш тісний зв’язок з ним у розмовних застосунках.', // ... conversational applications.
     varTip: 'Ви можете використовувати змінні, спробуйте ввести {{variable}}', // You can use variables, try type {{variable}}
     tooShort: 'Для створення вступних зауважень для розмови потрібно принаймні 20 слів вступного запиту.', // ... are required to generate an opening remarks for the conversation.

@@ -8,6 +8,7 @@ import storybook from 'eslint-plugin-storybook'
 import tailwind from 'eslint-plugin-tailwindcss'
 import reactHooks from 'eslint-plugin-react-hooks'
 import sonar from 'eslint-plugin-sonarjs'
+import oxlint from 'eslint-plugin-oxlint'
 
 // import reactRefresh from 'eslint-plugin-react-refresh'
 
@@ -212,7 +213,7 @@ export default combine(
     settings: {
       tailwindcss: {
         // These are the default values but feel free to customize
-        callees: ['classnames', 'clsx', 'ctl', 'cn'],
+        callees: ['classnames', 'clsx', 'ctl', 'cn', 'classNames'],
         config: 'tailwind.config.js', // returned from `loadConfig()` utility if not provided
         cssFiles: [
           '**/*.css',
@@ -245,4 +246,5 @@ export default combine(
       'tailwindcss/migration-from-tailwind-2': 'warn',
     },
   },
+  oxlint.configs['flat/recommended'],
 )

@@ -1,0 +1,6 @@
+Usage: celery [OPTIONS] COMMAND [ARGS]...
+Try 'celery --help' for help.
+
+Error: 
+Unable to load celery application.
+The module app.celery was not found.

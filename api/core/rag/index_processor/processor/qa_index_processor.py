@@ -64,21 +64,21 @@ class QAIndexProcessor(BaseIndexProcessor):
             logging.warning("No input documents provided for QA processing")
             return []
         
-        logging.info(f"Processing {len(documents)} input documents")
+        logging.info("Processing %d input documents", len(documents))
         
         for i, document in enumerate(documents):
-            logging.info(f"Processing document {i+1}/{len(documents)}")
+            logging.info("Processing document %d/%d", i+1, len(documents))
             
             # 检查文档内容
             if not document.page_content or not document.page_content.strip():
-                logging.warning(f"Document {i+1} has empty or whitespace-only content")
+                logging.warning("Document %d has empty or whitespace-only content", i+1)
                 continue
             
             # 清理文档
             document_text = CleanProcessor.clean(document.page_content, kwargs.get("process_rule") or {})
             document.page_content = document_text
             
-            logging.info(f"Document {i+1} content length after cleaning: {len(document_text)}")
+            logging.info("Document %d content length after cleaning: %d", i+1, len(document_text))
             
             # QA模式：在Transform阶段识别和格式化QA结构
             if kwargs.get("document_model") == "qa_model":
@@ -110,8 +110,8 @@ class QAIndexProcessor(BaseIndexProcessor):
                     formatted_content = "\n\n".join(qa_pairs)
                     document.page_content = formatted_content
                     print(f"Formatted content length: {len(formatted_content)}")
-                    print(f"Contains actual newlines: {'\\n' in formatted_content}")
-                    print(f"Newline count: {formatted_content.count('\\n')}")
+                    print(f"Contains actual newlines: {chr(10) in formatted_content}")
+                    print(f"Newline count: {formatted_content.count(chr(10))}")
                     print(f"First 200 chars: {formatted_content[:200]}...")
                 else:
                     print("No QA pairs found, keeping original content")
@@ -136,7 +136,7 @@ class QAIndexProcessor(BaseIndexProcessor):
                     document_node.page_content = remove_leading_symbols(page_content)
                     split_documents.append(document_node)
                 else:
-                    logging.warning(f"Document {i+1}, Node {j+1}: empty content after processing")
+                    logging.warning("Document %d, Node %d: empty content after processing", i+1, j+1)
             all_documents.extend(split_documents)
         
         
@@ -188,8 +188,9 @@ class QAIndexProcessor(BaseIndexProcessor):
             k = _qa_key_global(d)
             if k in seen_keys:
                 logging.info(
-                    f"Global dedup skipped: question='{d.page_content}', "
-                    f"answer='{(d.metadata or {}).get('answer')}'"
+                    "Global dedup skipped: question='%s', answer='%s'",
+                    d.page_content,
+                    (d.metadata or {}).get('answer')
                 )
                 continue
             seen_keys.add(k)
@@ -199,7 +200,7 @@ class QAIndexProcessor(BaseIndexProcessor):
 
     def format_by_template(self, file: FileStorage, **kwargs) -> list[Document]:
         # check file type
-        if not file.filename or not file.filename.endswith(".csv"):
+        if not file.filename or not file.filename.lower().endswith(".csv"):
             raise ValueError("Invalid file type. Only CSV files are allowed")
 
         try:
@@ -271,18 +272,20 @@ class QAIndexProcessor(BaseIndexProcessor):
         with flask_app.app_context():
             try:
                 # qa model document
-                logging.info(f"document_node.page_content: {document_node.page_content}")
+                logging.info("document_node.page_content: %s", document_node.page_content)
                 response = LLMGenerator.generate_qa_document(tenant_id, document_node.page_content, document_language)
-                logging.info(f"LLM response: {response}")
+                logging.info("LLM response: %s", response)
                 document_qa_list = self._format_split_text(response)
-                logging.info(f"document_qa_list: {document_qa_list}")
+                logging.info("document_qa_list: %s", document_qa_list)
                 # 记录该段生成的 QA 数量
                 try:
                     gen_count = len(document_qa_list)
                 except Exception:
                     gen_count = 0
                 logging.info(
-                    f"Segment {segment_index if segment_index is not None else '?'} generated {gen_count} QA items"
+                    "Segment %s generated %d QA items",
+                    segment_index if segment_index is not None else '?',
+                    gen_count
                 )
                 qa_documents = []
                 for idx_within, result in enumerate(document_qa_list, start=1):
@@ -432,9 +435,9 @@ class QAIndexProcessor(BaseIndexProcessor):
                 unique_pairs.append((q2, a2))
         
         logging.info("=== FORMAT SPLIT TEXT DEBUG ===")
-        logging.info(f"Input text length: {len(text) if text else 0}")
-        logging.info(f"QA pairs found: {len(unique_pairs)}")
-        logging.info(f"First few QA pairs: {unique_pairs[:3]}")
+        logging.info("Input text length: %d", len(text) if text else 0)
+        logging.info("QA pairs found: %d", len(unique_pairs))
+        logging.info("First few QA pairs: %s", unique_pairs[:3])
         logging.info("=== END FORMAT SPLIT TEXT DEBUG ===")
         
         return [{"question": q, "answer": re.sub(r"\n\s*", "\n", a)} for q, a in unique_pairs]

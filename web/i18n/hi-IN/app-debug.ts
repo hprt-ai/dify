@@ -320,6 +320,9 @@ const translation = {
       atLeastOneOption: 'कम से कम एक विकल्प आवश्यक है',
       optionRepeat: 'विकल्प दोहराए गए हैं',
     },
+    'defaultValue': 'डिफ़ॉल्ट मान',
+    'noDefaultValue': 'कोई डिफ़ॉल्ट मान नहीं',
+    'selectDefaultValue': 'डिफ़ॉल्ट मान चुनें',
   },
   vision: {
     name: 'विजन',
@@ -362,6 +365,7 @@ const translation = {
     placeholder:
       'यहां अपना प्रारंभक संदेश लिखें, आप वेरिएबल्स का उपयोग कर सकते हैं, {{variable}} टाइप करने का प्रयास करें।',
     openingQuestion: 'प्रारंभिक प्रश्न',
+    openingQuestionPlaceholder: 'आप वेरिएबल्स का उपयोग कर सकते हैं, {{variable}} टाइप करके देखें।',
     noDataPlaceHolder:
       'उपयोगकर्ता के साथ संवाद प्रारंभ करने से एआई को संवादात्मक अनुप्रयोगों में उनके साथ निकट संबंध स्थापित करने में मदद मिल सकती है।',
     varTip:

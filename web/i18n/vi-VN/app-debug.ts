@@ -287,6 +287,9 @@ const translation = {
       atLeastOneOption: 'Cần ít nhất một tùy chọn',
       optionRepeat: 'Có các tùy chọn trùng lặp',
     },
+    'defaultValue': 'Giá trị mặc định',
+    'noDefaultValue': 'Không có giá trị mặc định',
+    'selectDefaultValue': 'Chọn giá trị mặc định',
   },
   vision: {
     name: 'Thị giác',
@@ -328,6 +331,7 @@ const translation = {
     writeOpener: 'Viết câu mở đầu',
     placeholder: 'Viết thông điệp mở đầu của bạn ở đây, bạn có thể sử dụng biến, hãy thử nhập {{biến}}.',
     openingQuestion: 'Câu hỏi mở đầu',
+    openingQuestionPlaceholder: 'Bạn có thể sử dụng biến, hãy thử nhập {{variable}}.',
     noDataPlaceHolder: 'Bắt đầu cuộc trò chuyện với người dùng có thể giúp AI thiết lập mối quan hệ gần gũi hơn với họ trong các ứng dụng trò chuyện.',
     varTip: 'Bạn có thể sử dụng biến, hãy thử nhập {{biến}}',
     tooShort: 'Cần ít nhất 20 từ trong lời nhắc ban đầu để tạo ra các câu mở đầu cho cuộc trò chuyện.',
