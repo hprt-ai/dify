@@ -81,6 +81,7 @@ from .datasets import (
     datasets,
     datasets_document,
     datasets_segments,
+    export,
     external,
     hit_testing,
     metadata,

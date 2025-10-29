@@ -20,6 +20,7 @@ import type { Tag } from '@/app/components/base/tag-management/constant'
 import TagSelector from '@/app/components/base/tag-management/selector'
 import CornerLabel from '@/app/components/base/corner-label'
 import { useAppContext } from '@/context/app-context'
+import ExportModal from '@/app/components/datasets/documents/export-modal'
 
 export type DatasetCardProps = {
   dataset: DataSet
@@ -41,6 +42,7 @@ const DatasetCard = ({
   const [showRenameModal, setShowRenameModal] = useState(false)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [confirmMessage, setConfirmMessage] = useState<string>('')
+  const [showExport, setShowExport] = useState(false)
   const isExternalProvider = (provider: string): boolean => provider === EXTERNAL_PROVIDER
   const detectIsUsedByApp = useCallback(async () => {
     try {
@@ -82,10 +84,19 @@ const DatasetCard = ({
       e.preventDefault()
       detectIsUsedByApp()
     }
+    const onClickExport = async (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation()
+      props.onClick?.()
+      e.preventDefault()
+      setShowExport(true)
+    }
     return (
       <div className="relative w-full py-1" onMouseLeave={onMouseLeave}>
         <div className='mx-1 flex h-8 cursor-pointer items-center gap-2 rounded-lg px-3 py-[6px] hover:bg-state-base-hover' onClick={onClickRename}>
           <span className='text-sm text-text-secondary'>{t('common.operation.settings')}</span>
+        </div>
+        <div className='mx-1 flex h-8 cursor-pointer items-center gap-2 rounded-lg px-3 py-[6px] hover:bg-state-base-hover' onClick={onClickExport}>
+          <span className='text-sm text-text-secondary'>导出</span>
         </div>
         {props.showDelete && (
           <>
@@ -231,6 +242,14 @@ const DatasetCard = ({
           isShow={showConfirmDelete}
           onConfirm={onConfirmDelete}
           onCancel={() => setShowConfirmDelete(false)}
+        />
+      )}
+      {showExport && (
+        <ExportModal
+          datasetId={dataset.id}
+          datasetName={dataset.name}
+          isOpen={showExport}
+          onClose={() => setShowExport(false)}
         />
       )}
     </>
