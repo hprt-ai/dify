@@ -65,6 +65,7 @@ class Rule(BaseModel):
     segmentation: Optional[Segmentation] = None
     parent_mode: Optional[Literal["full-doc", "paragraph"]] = None
     subchunk_segmentation: Optional[Segmentation] = None
+    parsing_mode: Optional[Literal["default", "qa_docx", "full_docx"]] = "default"
 
 
 class ProcessRule(BaseModel):

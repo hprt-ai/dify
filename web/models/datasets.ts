@@ -229,6 +229,7 @@ export type Rules = {
   segmentation: Segmentation
   parent_mode: ParentMode
   subchunk_segmentation: Segmentation
+  parsing_mode?: 'default' | 'qa_docx' | 'full_docx'
 }
 
 export type Limits = {

@@ -55,6 +55,7 @@ import Checkbox from '@/app/components/base/checkbox'
 import RadioCard from '@/app/components/base/radio-card'
 import { FULL_DOC_PREVIEW_LENGTH, IS_CE_EDITION } from '@/config'
 import Divider from '@/app/components/base/divider'
+import PureSelect from '@/app/components/base/select/pure'
 import { getNotionInfo, getWebsiteInfo, useCreateDocument, useCreateFirstDocument, useFetchDefaultProcessRule, useFetchFileIndexingEstimateForFile, useFetchFileIndexingEstimateForNotion, useFetchFileIndexingEstimateForWeb } from '@/service/knowledge/use-create-dataset'
 import Badge from '@/app/components/base/badge'
 import { SkeletonContainer, SkeletonPoint, SkeletonRectangle, SkeletonRow } from '@/app/components/base/skeleton'
@@ -225,6 +226,8 @@ const StepTwo = ({
     (datasetId && documentDetail) ? documentDetail.doc_language : (locale !== LanguagesSupported[1] ? 'English' : 'Chinese Simplified'),
   )
 
+  const [parsingMode, setParsingMode] = useState<string>('default')
+
   const [parentChildConfig, setParentChildConfig] = useState<ParentChildConfig>(defaultParentChildConfig)
 
   const getIndexing_technique = () => indexingType || indexType
@@ -246,6 +249,7 @@ const StepTwo = ({
             separator: unescape(parentChildConfig.child.delimiter),
             max_tokens: parentChildConfig.child.maxLength,
           },
+          parsing_mode: parsingMode,
         },
         mode: 'hierarchical',
       } as ProcessRule
@@ -258,6 +262,7 @@ const StepTwo = ({
           max_tokens: maxChunkLength,
           chunk_overlap: overlap,
         },
+        parsing_mode: parsingMode,
       }, // api will check this. It will be removed after api refactored.
       mode: segmentationType,
     } as ProcessRule
@@ -514,6 +519,10 @@ const StepTwo = ({
       setRules(rules.pre_processing_rules)
       setDefaultConfig(rules)
 
+      // Set parsing mode from document detail
+      if (rules.parsing_mode)
+        setParsingMode(rules.parsing_mode)
+
       if (isHierarchicalDocument) {
         setParentChildConfig({
           chunkForContext: rules.parent_mode || 'paragraph',
@@ -651,13 +660,13 @@ const StepTwo = ({
                 <MaxLengthInput
                   unit='characters'
                   value={maxChunkLength}
-                  onChange={setMaxChunkLength}
+                  onChange={value => value !== undefined && setMaxChunkLength(value)}
                 />
                 <OverlapInput
                   unit='characters'
                   value={overlap}
                   min={1}
-                  onChange={setOverlap}
+                  onChange={value => value !== undefined && setOverlap(value)}
                 />
               </div>
               <div className='flex w-full flex-col'>
@@ -680,6 +689,23 @@ const StepTwo = ({
                   ))}
                   {IS_CE_EDITION && <>
                     <Divider type='horizontal' className='my-4 bg-divider-subtle' />
+                    <div className='mb-3 flex flex-col gap-1'>
+                      <label className="system-sm-semibold text-text-secondary">
+                        {t('datasetCreation.stepTwo.parsingMode')}
+                      </label>
+                      <PureSelect
+                        options={[
+                          { value: 'default', label: t('datasetCreation.stepTwo.parsingModeDefault') },
+                          { value: 'qa_docx', label: t('datasetCreation.stepTwo.parsingModeQADocx') },
+                          { value: 'full_docx', label: t('datasetCreation.stepTwo.parsingModeFullDocx') },
+                        ]}
+                        value={parsingMode}
+                        onChange={setParsingMode}
+                        triggerProps={{
+                          className: 'w-full',
+                        }}
+                      />
+                    </div>
                     <div className='flex items-center py-0.5'>
                       <div className='flex items-center' onClick={() => {
                         if (currentDataset?.doc_form)
@@ -784,7 +810,7 @@ const StepTwo = ({
                       <MaxLengthInput
                         unit='characters'
                         value={parentChildConfig.parent.maxLength}
-                        onChange={value => setParentChildConfig({
+                        onChange={value => value !== undefined && setParentChildConfig({
                           ...parentChildConfig,
                           parent: {
                             ...parentChildConfig.parent,
@@ -831,7 +857,7 @@ const StepTwo = ({
                   <MaxLengthInput
                     unit='characters'
                     value={parentChildConfig.child.maxLength}
-                    onChange={value => setParentChildConfig({
+                    onChange={value => value !== undefined && setParentChildConfig({
                       ...parentChildConfig,
                       child: {
                         ...parentChildConfig.child,
