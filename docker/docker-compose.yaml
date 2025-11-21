@@ -548,7 +548,7 @@ services:
     container_name: hanni_dify_api
     # image: langgenius/dify-api:1.4.3
     # image: localhost:5000/dify-api:devzzl
-    image: localhost:5000/dify-api:hanni_v1.3
+    image: localhost:5000/dify-api:hanni_v1.3.1
     restart: always
     ports:
       - "5888:5001"
@@ -581,7 +581,7 @@ services:
   worker:
     # 新项目容器名称
     container_name: hanni_dify_worker
-    image: localhost:5000/dify-api:hanni_v1.3
+    image: localhost:5000/dify-api:hanni_v1.3.1
     restart: always
     environment:
       # Use the shared environment variables.
@@ -608,7 +608,7 @@ services:
   # worker_beat service
   # Celery beat for scheduling periodic tasks.
   worker_beat:
-    image: localhost:5000/dify-api:hanni_v1.3
+    image: localhost:5000/dify-api:hanni_v1.3.1
     restart: always
     environment:
       # Use the shared environment variables.
@@ -628,7 +628,7 @@ services:
   web:
     # 新项目容器名称
     container_name: hanni_dify_web
-    image: localhost:5000/dify-web:hanni_v1.3
+    image: localhost:5000/dify-web:hanni_v1.3.1
     restart: always
     ports:
       - "3888:3000"

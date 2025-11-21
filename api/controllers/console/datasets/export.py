@@ -297,47 +297,21 @@ class ConsoleDatasetExportApi(Resource):
         buffer = io.BytesIO()
         doc = DocxDocument()
 
-        # 标题：Dataset 信息
-        doc.add_heading(f"Dataset: {dataset.name}", level=1)
-        doc.add_paragraph(f"ID: {dataset.id}")
-        doc.add_paragraph(f"Description: {dataset.description}")
-        doc.add_paragraph(f"Created At: {dataset.created_at.isoformat()}")
-        doc.add_paragraph(f"Updated At: {dataset.updated_at.isoformat()}")
+        first_segment = True
 
         for d in documents:
-            doc.add_paragraph("")
-            doc.add_heading(f"Document: {d.name}", level=2)
-            doc.add_paragraph(f"ID: {d.id}")
-            doc.add_paragraph(f"Data Source Type: {d.data_source_type}")
-            doc.add_paragraph(f"Indexing Status: {d.indexing_status}")
-            doc.add_paragraph(f"Created At: {d.created_at.isoformat()}")
-            doc.add_paragraph(f"Updated At: {d.updated_at.isoformat()}")
-            doc.add_paragraph(f"Enabled: {d.enabled}")
-            doc.add_paragraph(f"Segment Count: {d.segment_count}")
-            if d.doc_type:
-                doc.add_paragraph(f"Doc Type: {d.doc_type}")
-
             segments = (
                 db.session.query(DocumentSegment)
                 .filter_by(document_id=d.id, tenant_id=d.tenant_id)
                 .order_by(DocumentSegment.position)
                 .all()
             )
-            for i, seg in enumerate(segments, 1):
-                doc.add_paragraph("")
-                doc.add_heading(f"Segment {i}", level=3)
-                doc.add_paragraph(f"ID: {seg.id}")
-                doc.add_paragraph(f"Position: {seg.position}")
-                doc.add_paragraph(f"Document Name: {d.name}")
-                doc.add_paragraph("Content:")
-                p_content = doc.add_paragraph(seg.content or "")
-                doc.add_paragraph(f"Answer: {seg.answer or ''}")
-                doc.add_paragraph(f"Word Count: {seg.word_count}")
-                doc.add_paragraph(f"Status: {seg.status}")
-                if seg.keywords:
-                    doc.add_paragraph(f"Keywords: {json.dumps(seg.keywords, ensure_ascii=False)}")
-                doc.add_paragraph(f"Created At: {seg.created_at.isoformat()}")
-                doc.add_paragraph(f"Updated At: {seg.updated_at.isoformat()}")
+            for seg in segments:
+                if not first_segment:
+                    doc.add_paragraph("")
+                first_segment = False
+                doc.add_paragraph(f"Q: {seg.content or ''}")
+                doc.add_paragraph(f"A: {seg.answer or ''}")
 
         doc.save(buffer)
         buffer.seek(0)
@@ -351,5 +325,3 @@ class ConsoleDatasetExportApi(Resource):
 
 
 api.add_resource(ConsoleDatasetExportApi, "/datasets/<uuid:dataset_id>/export")
-
-
